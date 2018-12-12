@@ -1,0 +1,11 @@
+<?php
+
+declare(strict_types=1);
+
+require_once __DIR__ . '/../vendor/autoload.php';
+
+use Zend\Http\PhpEnvironment\Request;
+
+$context = Magento\Upward\Context::fromRequest(new Request());
+
+var_dump($context);

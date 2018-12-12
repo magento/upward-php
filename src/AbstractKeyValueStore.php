@@ -17,7 +17,7 @@ abstract class AbstractKeyValueStore
         $this->data = $data;
     }
 
-    public function get(string $lookup)
+    public function get($lookup)
     {
         if ($lookup === '') {
             return;
@@ -51,7 +51,7 @@ abstract class AbstractKeyValueStore
         return true;
     }
 
-    public function set(string $lookup, $value): self
+    public function set(string $lookup, $value): void
     {
         if ($lookup === '') {
             throw new \RuntimeException('Nah, do not set the entire data.');
@@ -78,7 +78,5 @@ abstract class AbstractKeyValueStore
         }
 
         $data[$key] = $value;
-
-        return $this;
     }
 }

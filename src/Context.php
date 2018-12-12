@@ -33,23 +33,23 @@ class Context extends AbstractKeyValueStore
     {
         return new self([
             'request' => [
-                'headers'       => $request->getHeaders(),
-                'headerEntries' => self::assocToEntries($request->getHeaders()),
-                'queryEntries'  => self::assocToEntries($request->getQuery()),
+                'headers'       => $request->getHeaders()->toArray(),
+                'headerEntries' => self::assocToEntries($request->getHeaders()->toArray()),
+                'queryEntries'  => self::assocToEntries($request->getQuery()->toArray()),
                 'url'           => [
                     'host'     => $request->getUri()->getHost(),
                     'hostname' => $request->getUri()->getHost() . ':' . $request->getUri()->getPort(),
                     'port'     => $request->getUri()->getPort(),
                     'pathname' => $request->getUri()->getPath(),
                     'search'   => '?' . $request->getUri()->getQuery(),
-                    'query'    => $request->getQuery(),
+                    'query'    => $request->getQuery()->toArray(),
                 ],
             ],
-            'env' => $request->getEnv(),
+            'env' => $request->getEnv()->toArray(),
         ]);
     }
 
-    public function get(string $lookup)
+    public function get($lookup)
     {
         if ($this->isBuiltinValue($lookup)) {
             return $lookup;
@@ -58,13 +58,13 @@ class Context extends AbstractKeyValueStore
         return parent::get($lookup);
     }
 
-    public function set(string $lookup, $value): self
+    public function set(string $lookup, $value): void
     {
         if ($this->isBuiltinValue($lookup)) {
             throw new \RuntimeException('Cannot override a builtin value.');
         }
 
-        return parent::set($lookup, $value);
+        parent::set($lookup, $value);
     }
 
     private static function assocToEntries(array $array): array
@@ -78,13 +78,13 @@ class Context extends AbstractKeyValueStore
         return $result;
     }
 
-    private function isBuiltinValue(string $value)
+    private function isBuiltinValue($value): bool
     {
-        return array_key_exists($value, self::BUILTIN_VALUES) || $this->isStatusCode($value);
+        return \in_array($value, self::BUILTIN_VALUES) || $this->isStatusCode($value);
     }
 
-    private function isStatusCode(string $value): bool
+    private function isStatusCode($value): bool
     {
-        return ctype_digit($value) && 100 <= $value && $value < 600;
+        return (\is_int($value) || ctype_digit($value)) && 100 <= $value && $value < 600;
     }
 }
