@@ -1,0 +1,45 @@
+{
+    "name": "magento/upward",
+    "description": "UPWARD parser and server",
+    "type": "library",
+    "license": "OSL-3.0",
+    "require": {
+        "php": ">= 7.1",
+        "guzzlehttp/guzzle": "^6.2",
+        "mustache/mustache": "^2.12",
+        "symfony/yaml": "^2.3||^3.3",
+        "zendframework/zend-http": "^2.6"
+    },
+    "require-dev": {
+        "bebat/verify": "^2.0",
+        "friendsofphp/php-cs-fixer": "^2.13",
+        "mockery/mockery": "^1.2",
+        "phpunit/phpunit": "^6.2",
+        "phpmd/phpmd": "^2.6"
+    },
+    "authors": [
+        {
+            "name": "Ben Batschelet",
+            "email": "batschel@adobe.com"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "Magento\\Upward\\": "src/"
+        }
+    },
+    "bin": [
+        "bin/upward"
+    ],
+    "config": {
+      "sort-packages": true
+    },
+    "minimum-stability": "stable",
+    "scripts": {
+        "cs-check": "php-cs-fixer fix -v --allow-risky=yes --ansi --dry-run --diff",
+        "cs-check-file": "php-cs-fixer fix -v --allow-risky=yes --ansi --dry-run --diff --path-mode=intersection",
+        "cs-fix": "php-cs-fixer fix -v --allow-risky=yes --ansi",
+        "test": "phpunit --colors=always",
+        "test-coverage": "phpunit --coverage-clover=coverage.xml"
+    }
+}
