@@ -58,7 +58,7 @@ class Context extends AbstractKeyValueStore
         return parent::get($lookup);
     }
 
-    public function set(string $lookup, $value): void
+    public function set($lookup, $value): void
     {
         if ($this->isBuiltinValue($lookup)) {
             throw new \RuntimeException('Cannot override a builtin value.');
@@ -80,7 +80,7 @@ class Context extends AbstractKeyValueStore
 
     private function isBuiltinValue($value): bool
     {
-        return \in_array($value, self::BUILTIN_VALUES) || $this->isStatusCode($value);
+        return \in_array($value, self::BUILTIN_VALUES, true) || $this->isStatusCode($value);
     }
 
     private function isStatusCode($value): bool

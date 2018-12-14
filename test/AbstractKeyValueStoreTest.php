@@ -6,7 +6,7 @@
 
 declare(strict_types=1);
 
-namespace Magento\Upward\Test\Resolver;
+namespace Magento\Upward\Test;
 
 use Magento\Upward\AbstractKeyValueStore;
 use PHPUnit\Framework\TestCase;

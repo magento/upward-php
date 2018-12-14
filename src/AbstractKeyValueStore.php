@@ -83,7 +83,7 @@ abstract class AbstractKeyValueStore
      * @throws RuntimeException if an existing parent of lookup is a scalar value
      *                          (would effectively overwrite an existing value)
      */
-    public function set(string $lookup, $value): void
+    public function set($lookup, $value): void
     {
         $lookup = trim($lookup);
 
