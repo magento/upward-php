@@ -8,9 +8,21 @@ declare(strict_types=1);
 
 namespace Magento\Upward\Resolver;
 
-class Inline implements ResolverInterface
+class Inline extends AbstractResolver
 {
+    /**
+     * {@inheritdoc}
+     */
+    public function getIndicator(): string
+    {
+        return 'inline';
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function resolve($definition)
     {
+        return $definition->get($this->getIndicator());
     }
 }

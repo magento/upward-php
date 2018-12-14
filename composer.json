@@ -25,7 +25,12 @@
     ],
     "autoload": {
         "psr-4": {
-            "Magento\\Upward\\": "src/"
+            "Magento\\Upward\\": "src"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Magento\\Upward\\Test\\": "test"
         }
     },
     "bin": [
