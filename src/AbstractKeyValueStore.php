@@ -10,6 +10,9 @@ namespace Magento\Upward;
 
 abstract class AbstractKeyValueStore
 {
+    /**
+     * @var array
+     */
     protected $data;
 
     public function __construct(array $data)
@@ -17,6 +20,15 @@ abstract class AbstractKeyValueStore
         $this->data = $data;
     }
 
+    /**
+     * Get value for a key.
+     *
+     * Scalar values will be returned directly, complex values will be returned as an instance of this class.
+     *
+     * @param string|mixed $lookup
+     *
+     * @return mixed|static|null
+     */
     public function get($lookup)
     {
         if ($lookup === '') {
@@ -36,6 +48,17 @@ abstract class AbstractKeyValueStore
         return \is_array($value) ? new static($value) : $value;
     }
 
+    /**
+     * List keys.
+     */
+    public function getKeys(): array
+    {
+        return array_keys($this->data);
+    }
+
+    /**
+     * Does $lookup exist in this store?
+     */
     public function has(string $lookup): bool
     {
         $subArray = $this->data;
@@ -51,14 +74,29 @@ abstract class AbstractKeyValueStore
         return true;
     }
 
+    /**
+     * Assign a new key in store.
+     *
+     *
+     * @throws RuntimeException if $lookup is empty
+     * @throws RuntimeException if $lookup is already set
+     * @throws RuntimeException if an existing parent of lookup is a scalar value
+     *                          (would effectively overwrite an existing value)
+     */
     public function set(string $lookup, $value): void
     {
-        if ($lookup === '') {
-            throw new \RuntimeException('Nah, do not set the entire data.');
+        $lookup = trim($lookup);
+
+        if (empty($lookup)) {
+            throw new \RuntimeException('Cannot set a value for an empty lookup.');
         }
 
         $segments = explode('.', $lookup);
         $data     = &$this->data;
+
+        if ($value instanceof self) {
+            $value = $value->toArray();
+        }
 
         while (\count($segments) > 1) {
             $segment = array_shift($segments);
@@ -66,7 +104,7 @@ abstract class AbstractKeyValueStore
             if (!isset($data[$segment])) {
                 $data[$segment] = [];
             } elseif (!\is_array($data[$segment])) {
-                throw new \RuntimeException('Changing scalar value to array? No.');
+                throw new \RuntimeException('Lookup would overwrite existing scalar value with an array.');
             }
 
             $data = &$data[$segment];
@@ -74,9 +112,17 @@ abstract class AbstractKeyValueStore
 
         $key = array_shift($segments);
         if (array_key_exists($key, $data)) {
-            throw new \RuntimeException('No overwriting existing values');
+            throw new \RuntimeException('Lookup already exists in store.');
         }
 
         $data[$key] = $value;
+    }
+
+    /**
+     * Convert store data to bare array.
+     */
+    public function toArray(): array
+    {
+        return $this->data;
     }
 }
