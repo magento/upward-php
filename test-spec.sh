@@ -1,3 +1,6 @@
 #!/bin/sh
 
-php -S localhost:8000 bin/upward
+PORT=$(( ((RANDOM<<15)|RANDOM) % 63001 + 2000 ))
+
+echo "http://localhost:$PORT"
+php -S localhost:${PORT} bin/upward > /dev/null

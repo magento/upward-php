@@ -1,10 +1,16 @@
 {
   "name": "upward-php",
   "author": "Magento Commerce Inc.",
+  "engines": {
+    "node": ">=8.0.0"
+  },
   "scripts": {
     "test:spec": "upward-spec ./test-spec.sh"
   },
   "devDependencies": {
     "@magento/upward-spec": "~2.0.0-rc.15"
+  },
+  "peerDependencies": {
+    "express": "^4.16.3"
   }
 }
