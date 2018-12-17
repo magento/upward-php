@@ -8,7 +8,7 @@ declare(strict_types=1);
 
 namespace Magento\Upward;
 
-abstract class AbstractKeyValueStore
+abstract class AbstractKeyValueStore implements \JsonSerializable
 {
     /**
      * @var array
@@ -72,6 +72,16 @@ abstract class AbstractKeyValueStore
         }
 
         return true;
+    }
+
+    /**
+     * Data to include when serializing to JSON.
+     *
+     * @return array
+     */
+    public function jsonSerialize()
+    {
+        return $this->toArary();
     }
 
     /**
