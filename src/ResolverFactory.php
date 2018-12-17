@@ -57,6 +57,25 @@ class ResolverFactory
     }
 
     /**
+     * Return a resolver from instance cache by its type,
+     * otherwise instantiate one based on its type and cache it.
+     *
+     * @throws RuntimeException if there is no cached instance or configured class for $resolverType
+     */
+    private static function build(string $resolverType): Resolver\ResolverInterface
+    {
+        if (!array_key_exists($resolverType, self::$resolvers)) {
+            if (!array_key_exists($resolverType, self::$resolverClasses)) {
+                throw new \RuntimeException('No resolver class defined for resolver ' . $resolverType);
+            }
+
+            self::addResolver($resolverType, new self::$resolverClasses[$resolverType]());
+        }
+
+        return self::$resolvers[$resolverType];
+    }
+
+    /**
      * Get a Resolver for a Definition.
      *
      * @throws RuntimeException if $definition is not valid for the Resolver
@@ -92,25 +111,6 @@ class ResolverFactory
         }
 
         return null;
-    }
-
-    /**
-     * Return a resolver from instance cache by its type,
-     * otherwise instantiate one based on its type and cache it.
-     *
-     * @throws RuntimeException if there is no cached instance or configured class for $resolverType
-     */
-    private static function build(string $resolverType): Resolver\ResolverInterface
-    {
-        if (!array_key_exists($resolverType, self::$resolvers)) {
-            if (!array_key_exists($resolverType, self::$resolverClasses)) {
-                throw new \RuntimeException('No resolver class defined for resolver ' . $resolverType);
-            }
-
-            self::addResolver($resolverType, new self::$resolverClasses[$resolverType]());
-        }
-
-        return self::$resolvers[$resolverType];
     }
 
     /**
