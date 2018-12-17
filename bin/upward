@@ -12,5 +12,4 @@ try {
 }
 
 $controller = new Magento\Upward\Controller(new Request());
-
-var_dump($controller->run());
+echo $controller->run();

@@ -27,12 +27,23 @@ class Controller
         $this->definitionTraverser = new DefinitionTraverser($this->definition, $this->context);
     }
 
-    public function run()
+    /**
+     * Executes request and returns response
+     *
+     * @return \Zend\Http\Response
+     */
+    public function run(): \Zend\Http\Response
     {
         $response = new \Zend\Http\Response();
-        $response->setStatusCode($this->definitionTraverser->get('status'));
-        $response->getHeaders()->addHeaders($this->definitionTraverser->get('headers'));
-        $response->setContent($this->definitionTraverser->get('body'));
+        try {
+            $response->setStatusCode($this->definitionTraverser->get('status'));
+            $response->getHeaders()->addHeaders($this->definitionTraverser->get('headers'));
+            $response->setContent($this->definitionTraverser->get('body'));
+        } catch (\Exception $e) {
+            $response->setStatusCode(500);
+            $response->getHeaders()->clearHeaders();
+            $response->setContent($e->getMessage());
+        }
 
         return $response;
     }

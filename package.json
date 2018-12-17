@@ -1,0 +1,10 @@
+{
+  "name": "upward-php",
+  "author": "Magento Commerce Inc.",
+  "scripts": {
+    "test:spec": "upward-spec ./test-spec.sh"
+  },
+  "devDependencies": {
+    "@magento/upward-spec": "~2.0.0-rc.15"
+  }
+}
