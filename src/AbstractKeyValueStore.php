@@ -81,7 +81,7 @@ abstract class AbstractKeyValueStore implements \JsonSerializable
      */
     public function jsonSerialize()
     {
-        return $this->toArary();
+        return $this->toArray();
     }
 
     /**
