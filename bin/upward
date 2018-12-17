@@ -2,10 +2,15 @@
 
 declare(strict_types=1);
 
-require_once __DIR__ . '/../vendor/autoload.php';
-
 use Zend\Http\PhpEnvironment\Request;
 
-$context = Magento\Upward\Context::fromRequest(new Request());
+try {
+    require_once __DIR__ . '/../vendor/autoload.php';
+} catch (\Exception $e) {
+    echo 'Autoload error: ' . $e->getMessage();
+    exit(1);
+}
 
-var_dump($context);
+$controller = new Magento\Upward\Controller(new Request());
+
+var_dump($controller->run());
