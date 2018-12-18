@@ -11,5 +11,13 @@ try {
     exit(1);
 }
 
-$controller = new Magento\Upward\Controller(new Request());
-echo $controller->run();
+$upwardConfig = getenv('UPWARD_PHP_UPWARD_PATH');
+if (!$upwardConfig) {
+    // this appears to violate the spec, since we can't kill the server until we receive a request
+    // will leave here for right now until we can discuss with Z
+    posix_kill(posix_getpid(), SIGKILL);
+    exit(1);
+}
+
+$controller = new Magento\Upward\Controller(new Request(), $upwardConfig);
+echo $controller();

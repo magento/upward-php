@@ -18,12 +18,12 @@ class Controller
     private $definitionTraverser;
 
     public function __construct(
-        \Zend\Http\PhpEnvironment\Request $request
+        \Zend\Http\PhpEnvironment\Request $request,
+        string $upwardConfig
     ) {
         $this->request = $request;
         $this->context = Context::fromRequest($request);
-        // this value will need to be sourced from config?
-        $this->definition = Definition::fromYamlFile("pwa/upward-config-sample.yml");
+        $this->definition = Definition::fromYamlFile($upwardConfig);
         $this->definitionTraverser = new DefinitionTraverser($this->definition, $this->context);
     }
 
@@ -32,14 +32,14 @@ class Controller
      *
      * @return \Zend\Http\Response
      */
-    public function run(): \Zend\Http\Response
+    public function __invoke(): \Zend\Http\Response
     {
         $response = new \Zend\Http\Response();
         try {
             $response->setStatusCode($this->definitionTraverser->get('status'));
             $response->getHeaders()->addHeaders($this->definitionTraverser->get('headers'));
             $response->setContent($this->definitionTraverser->get('body'));
-        } catch (\Exception $e) {
+        } catch (\RuntimeException $e) {
             $response->setStatusCode(500);
             $response->getHeaders()->clearHeaders();
             $response->setContent($e->getMessage());
