@@ -56,7 +56,7 @@ class DefinitionIterator
         $definition = $this->definition->get($lookup);
 
         if ($definition === null) {
-            throw new \RuntimeException('No definition for ' . is_scalar($lookup) ? $lookup : \gettype($lookup));
+            throw new \RuntimeException('No definition for ' . (is_scalar($lookup) ? $lookup : \gettype($lookup)));
         }
 
         $resolver = ResolverFactory::get($definition);
