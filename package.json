@@ -1,0 +1,13 @@
+{
+  "name": "upward-php",
+  "description": "Implementation of the UPWARD spec as a PHP server",
+  "repository": "github:magento-research/upward-php",
+  "license": "SEE LICENSE IN LICENSE.txt",
+  "author": "Magento Commerce Inc.",
+  "scripts": {
+    "test:spec": "upward-spec ./test-spec.sh"
+  },
+  "devDependencies": {
+    "@magento/upward-spec": "~2.0.0-rc.15"
+  }
+}
