@@ -1,4 +1,8 @@
 <?php
+/**
+ * Copyright © Magento, Inc. All rights reserved.
+ * See COPYING.txt for license details.
+ */
 declare(strict_types=1);
 
 namespace Magento\Upward;
@@ -14,8 +18,8 @@ class Controller
     /** @var Definition */
     private $definition;
 
-    /** @var DefinitionTraverser */
-    private $definitionTraverser;
+    /** @var DefinitionIterator */
+    private $definitionIterator;
 
     public function __construct(
         \Zend\Http\PhpEnvironment\Request $request,
@@ -24,7 +28,7 @@ class Controller
         $this->request = $request;
         $this->context = Context::fromRequest($request);
         $this->definition = Definition::fromYamlFile($upwardConfig);
-        $this->definitionTraverser = new DefinitionTraverser($this->definition, $this->context);
+        $this->definitionIterator = new DefinitionIterator($this->definition, $this->context);
     }
 
     /**
@@ -36,9 +40,9 @@ class Controller
     {
         $response = new \Zend\Http\Response();
         try {
-            $response->setStatusCode($this->definitionTraverser->get('status'));
-            $response->getHeaders()->addHeaders($this->definitionTraverser->get('headers'));
-            $response->setContent($this->definitionTraverser->get('body'));
+            $response->setStatusCode($this->definitionIterator->get('status'));
+            $response->getHeaders()->addHeaders($this->definitionIterator->get('headers'));
+            $response->setContent($this->definitionIterator->get('body'));
         } catch (\RuntimeException $e) {
             $response->setStatusCode(500);
             $response->getHeaders()->clearHeaders();
