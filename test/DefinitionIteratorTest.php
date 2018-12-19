@@ -22,12 +22,24 @@ class DefinitionIteratorTest extends TestCase
 {
     use MockeryPHPUnitIntegration;
 
+    /**
+     * DefinitionIterator
+     */
     private $iterator;
 
+    /**
+     * @var Context|Mockery\MockInterface
+     */
     private $mockContext;
 
+    /**
+     * @var Definition|Mockery\MockInterface
+     */
     private $mockDefinition;
 
+    /**
+     * @var ResolverFactory|Mockery\MockInterface
+     */
     private $mockResolverFactory;
 
     protected function setUp(): void
@@ -37,6 +49,10 @@ class DefinitionIteratorTest extends TestCase
         $this->mockResolverFactory = Mockery::mock('alias:' . ResolverFactory::class);
 
         $this->mockContext->shouldReceive('has')
+            ->with(Mockery::any())
+            ->andReturn(false)
+            ->byDefault();
+        $this->mockContext->shouldReceive('isBuiltinValue')
             ->with(Mockery::any())
             ->andReturn(false)
             ->byDefault();
@@ -60,6 +76,22 @@ class DefinitionIteratorTest extends TestCase
         $this->expectExceptionMessage('Definition appears to contain a loop');
 
         $this->iterator->get('lookup value');
+    }
+
+    public function testDefinitionIsBuiltIn(): void
+    {
+        $this->mockDefinition->shouldReceive('get')
+            ->with('lookup value')
+            ->andReturn('definition value');
+
+        $this->mockContext->shouldReceive('isBuiltinValue')
+            ->with('definition value')
+            ->andReturn(true);
+        $this->mockContext->shouldReceive('set')
+            ->with('lookup value', 'definition value')
+            ->once();
+
+        verify($this->iterator->get('lookup value'))->is()->sameAs('definition value');
     }
 
     public function testGetFromContext(): void
@@ -134,16 +166,16 @@ class DefinitionIteratorTest extends TestCase
             ->andReturn($childDefinition);
 
         $this->mockContext->shouldReceive('has')
-            ->with('lookup value.key1')
+            ->with('key1')
             ->andReturn(true);
         $this->mockContext->shouldReceive('has')
-            ->with('lookup value.key2')
+            ->with('key2')
             ->andReturn(true);
         $this->mockContext->shouldReceive('get')
-            ->with('lookup value.key1')
+            ->with('key1')
             ->andReturn('context value 1');
         $this->mockContext->shouldReceive('get')
-            ->with('lookup value.key2')
+            ->with('key2')
             ->andReturn('context value 2');
 
         $this->mockContext->shouldReceive('set')
