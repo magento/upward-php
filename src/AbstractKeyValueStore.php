@@ -58,8 +58,10 @@ abstract class AbstractKeyValueStore implements \JsonSerializable
 
     /**
      * Does $lookup exist in this store?
+     *
+     * @param string|mixed $lookup
      */
-    public function has(string $lookup): bool
+    public function has($lookup): bool
     {
         $subArray = $this->data;
 
@@ -87,13 +89,14 @@ abstract class AbstractKeyValueStore implements \JsonSerializable
     /**
      * Assign a new key in store.
      *
+     * @param string $lookup
      *
      * @throws RuntimeException if $lookup is empty
      * @throws RuntimeException if $lookup is already set
      * @throws RuntimeException if an existing parent of lookup is a scalar value
      *                          (would effectively overwrite an existing value)
      */
-    public function set($lookup, $value): void
+    public function set(string $lookup, $value): void
     {
         $lookup = trim($lookup);
 
