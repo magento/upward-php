@@ -13,14 +13,52 @@ use Symfony\Component\Yaml\Yaml;
 class Definition extends AbstractKeyValueStore
 {
     /**
+     * @var string
+     */
+    private $basepath;
+
+    /**
      * Convert Yaml file to a Definition.
-     *
-     * @param string $filePath
      *
      * @return static
      */
     public static function fromYamlFile(string $filePath): self
     {
-        return new static(Yaml::parseFile($filePath));
+        $instance = new static(Yaml::parseFile($filePath));
+        $instance->setBasepath(\dirname($filePath));
+
+        return $instance;
+    }
+
+    /**
+     * Make sure to pass basepath into child definitions.
+     *
+     * {@inheritdoc}
+     */
+    public function get($lookup)
+    {
+        $value = parent::get($lookup);
+
+        if ($value instanceof self) {
+            $value->setBasepath($this->getBasepath());
+        }
+
+        return $value;
+    }
+
+    /**
+     * Get the directory name where definition YAML is stored.
+     */
+    public function getBasepath(): string
+    {
+        return $this->basepath;
+    }
+
+    /**
+     * Set path to directory containing definition YAML.
+     */
+    public function setBasepath(string $path): void
+    {
+        $this->basepath = realpath($path);
     }
 }
