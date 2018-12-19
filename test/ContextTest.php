@@ -77,19 +77,6 @@ class ContextTest extends TestCase
         verify($subject->get($value))->is()->sameAs($value);
     }
 
-    /**
-     * @dataProvider builtinDataProvider
-     */
-    public function testSetBuiltin($value): void
-    {
-        $subject = new Context([]);
-
-        $this->expectException(\RuntimeException::class);
-        $this->expectExceptionMessage('Cannot override a builtin value.');
-
-        $subject->set($value, 'some value');
-    }
-
     public function testIsBuiltinValue(): void
     {
         $subject = new Context([]);
@@ -118,5 +105,18 @@ class ContextTest extends TestCase
         verify($subject->isStatusCode(700))->is()->false();
         verify($subject->isStatusCode(3.14))->is()->false();
         verify($subject->isStatusCode('6.28'))->is()->false();
+    }
+
+    /**
+     * @dataProvider builtinDataProvider
+     */
+    public function testSetBuiltin($value): void
+    {
+        $subject = new Context([]);
+
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('Cannot override a builtin value.');
+
+        $subject->set($value, 'some value');
     }
 }

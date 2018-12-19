@@ -3,15 +3,13 @@
  * Copyright © Magento, Inc. All rights reserved.
  * See COPYING.txt for license details.
  */
+
 declare(strict_types=1);
 
 namespace Magento\Upward;
 
 class Controller
 {
-    /** @var \Zend\Http\PhpEnvironment\Request */
-    private $request;
-
     /** @var Context */
     private $context;
 
@@ -21,20 +19,21 @@ class Controller
     /** @var DefinitionIterator */
     private $definitionIterator;
 
+    /** @var \Zend\Http\PhpEnvironment\Request */
+    private $request;
+
     public function __construct(
         \Zend\Http\PhpEnvironment\Request $request,
         string $upwardConfig
     ) {
-        $this->request = $request;
-        $this->context = Context::fromRequest($request);
-        $this->definition = Definition::fromYamlFile($upwardConfig);
+        $this->request            = $request;
+        $this->context            = Context::fromRequest($request);
+        $this->definition         = Definition::fromYamlFile($upwardConfig);
         $this->definitionIterator = new DefinitionIterator($this->definition, $this->context);
     }
 
     /**
-     * Executes request and returns response
-     *
-     * @return \Zend\Http\Response
+     * Executes request and returns response.
      */
     public function __invoke(): \Zend\Http\Response
     {

@@ -23,7 +23,7 @@ class DefinitionIteratorTest extends TestCase
     use MockeryPHPUnitIntegration;
 
     /**
-     * DefinitionIterator
+     * @var DefinitionIterator
      */
     private $iterator;
 
@@ -62,22 +62,6 @@ class DefinitionIteratorTest extends TestCase
         $this->iterator = new DefinitionIterator($this->mockDefinition, $this->mockContext);
     }
 
-    public function testDefinitionLoop(): void
-    {
-        $this->mockDefinition->shouldReceive('get')
-            ->with('lookup value')
-            ->andReturn('lookup value');
-
-        $this->mockResolverFactory->shouldReceive('get')
-            ->with('lookup value')
-            ->andReturnNull();
-
-        $this->expectException(\RuntimeException::class);
-        $this->expectExceptionMessage('Definition appears to contain a loop');
-
-        $this->iterator->get('lookup value');
-    }
-
     public function testDefinitionIsBuiltIn(): void
     {
         $this->mockDefinition->shouldReceive('get')
@@ -92,6 +76,22 @@ class DefinitionIteratorTest extends TestCase
             ->once();
 
         verify($this->iterator->get('lookup value'))->is()->sameAs('definition value');
+    }
+
+    public function testDefinitionLoop(): void
+    {
+        $this->mockDefinition->shouldReceive('get')
+            ->with('lookup value')
+            ->andReturn('lookup value');
+
+        $this->mockResolverFactory->shouldReceive('get')
+            ->with('lookup value')
+            ->andReturnNull();
+
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('Definition appears to contain a loop');
+
+        $this->iterator->get('lookup value');
     }
 
     public function testGetFromContext(): void
