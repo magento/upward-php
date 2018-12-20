@@ -64,7 +64,9 @@ class DefinitionIterator
         }
 
         if ($this->context->isBuiltinValue($definition)) {
-            $this->context->set($lookup, $definition);
+            if ($updateContext) {
+                $this->context->set($lookup, $definition);
+            }
 
             return $definition;
         }
