@@ -17,6 +17,8 @@ class Definition extends AbstractKeyValueStore
      */
     private $basepath;
 
+    private $lookup = '';
+
     /**
      * Convert Yaml file to a Definition.
      *
@@ -41,6 +43,7 @@ class Definition extends AbstractKeyValueStore
 
         if ($value instanceof self) {
             $value->setBasepath($this->getBasepath());
+            $value->lookup = (empty($this->lookup) ? '' : $this->lookup . '.') . $lookup;
         }
 
         return $value;
@@ -52,6 +55,11 @@ class Definition extends AbstractKeyValueStore
     public function getBasepath(): string
     {
         return $this->basepath;
+    }
+
+    public function getLookupPath(): string
+    {
+        return $this->lookup;
     }
 
     /**

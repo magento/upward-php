@@ -35,20 +35,15 @@ class DefinitionIterator
      * Travserse the Definition for a value, using a resolver if necessary.
      *
      * @param string|mixed           $lookup
-     * @param string                 $parentPath    Path before $lookup, used when iterating into child Definitions
-     * @param Definition|string|null $definition    Definition to iterate rather than root definition
      * @param bool                   $updateContext Store result from Definition & Resolver in Context
      *
      * @throws RuntimeException if iterator is already attempting to resolve $lookup
      *                          (ie, definition appears to contain a loop)
      * @throws RuntimeException if $lookup does not exist in definition
      */
-    public function get(
-        $lookup,
-        string $parentPath = '',
-        $definition = null,
-        bool $updateContext = true
-    ) {
+    public function get($lookup, $definition = null) {
+        $updateContext = false;
+
         if ($this->context->has($lookup)) {
             return $this->context->get($lookup);
         }
@@ -57,7 +52,10 @@ class DefinitionIterator
             throw new \RuntimeException('Definition appears to contain a loop: ' . json_encode($this->lookupStack));
         }
 
-        $definition = $definition ?? $this->definition->get($lookup);
+        if ($definition === null) {
+            $definition = $this->getRootDefinition()->get($lookup);
+            $updateContext = true;
+        }
 
         if ($definition === null) {
             throw new \RuntimeException('No definition for ' . (is_scalar($lookup) ? $lookup : \gettype($lookup)));
@@ -71,7 +69,7 @@ class DefinitionIterator
             return $definition;
         }
 
-        $this->lookupStack[] = (empty($parentPath) ? '' : $parentPath . '.') . $lookup;
+        $this->lookupStack[] = $definition->getLookupPath();
 
         $resolver = ResolverFactory::get($definition);
 
@@ -105,5 +103,10 @@ class DefinitionIterator
         array_pop($this->lookupStack);
 
         return $value;
+    }
+
+    public function getRootDefinition(): Definition
+    {
+        return $this->definition;
     }
 }
