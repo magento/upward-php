@@ -17,7 +17,22 @@ class Definition extends AbstractKeyValueStore
      */
     private $basepath;
 
-    private $lookup = '';
+    /**
+     * @var string
+     */
+    private $treeAddress = '';
+
+    /**
+     * Set basepath to cwd on init.
+     *
+     * {@inheritdoc}
+     */
+    public function __construct(array $data)
+    {
+        $this->setBasepath(getcwd());
+
+        parent::__construct($data);
+    }
 
     /**
      * Convert Yaml file to a Definition.
@@ -43,7 +58,7 @@ class Definition extends AbstractKeyValueStore
 
         if ($value instanceof self) {
             $value->setBasepath($this->getBasepath());
-            $value->lookup = (empty($this->lookup) ? '' : $this->lookup . '.') . $lookup;
+            $value->treeAddress = (empty($this->treeAddress) ? '' : $this->treeAddress . '.') . $lookup;
         }
 
         return $value;
@@ -57,9 +72,12 @@ class Definition extends AbstractKeyValueStore
         return $this->basepath;
     }
 
-    public function getLookupPath(): string
+    /**
+     * Get a dot separated address of where this node belongs in the definition tree.
+     */
+    public function getTreeAddress(): string
     {
-        return $this->lookup;
+        return $this->treeAddress;
     }
 
     /**
