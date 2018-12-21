@@ -16,32 +16,33 @@ class DefinitionIterator
     private $context;
 
     /**
-     * @var Definition
-     */
-    private $definition;
-
-    /**
      * @var array
      */
     private $lookupStack = [];
 
-    public function __construct(Definition $definition, Context $context)
+    /**
+     * @var Definition
+     */
+    private $rootDefinition;
+
+    public function __construct(Definition $rootDefinition, Context $context)
     {
-        $this->definition = $definition;
-        $this->context    = $context;
+        $this->rootDefinition = $rootDefinition;
+        $this->context        = $context;
     }
 
     /**
      * Travserse the Definition for a value, using a resolver if necessary.
      *
      * @param string|mixed           $lookup
-     * @param bool                   $updateContext Store result from Definition & Resolver in Context
+     * @param Definition|string|null $definition Definition to iterate rather than root definition
      *
      * @throws RuntimeException if iterator is already attempting to resolve $lookup
      *                          (ie, definition appears to contain a loop)
      * @throws RuntimeException if $lookup does not exist in definition
      */
-    public function get($lookup, $definition = null) {
+    public function get($lookup, $definition = null)
+    {
         $updateContext = false;
 
         if ($this->context->has($lookup)) {
@@ -53,12 +54,15 @@ class DefinitionIterator
         }
 
         if ($definition === null) {
-            $definition = $this->getRootDefinition()->get($lookup);
-            $updateContext = true;
-        }
+            if (!$this->getRootDefinition()->has($lookup)) {
+                throw new \RuntimeException(sprintf(
+                    'No definition for %s',
+                    \is_string($lookup) || is_numeric($lookup) ? $lookup : \gettype($lookup)
+                ));
+            }
 
-        if ($definition === null) {
-            throw new \RuntimeException('No definition for ' . (is_scalar($lookup) ? $lookup : \gettype($lookup)));
+            $definition    = $this->getRootDefinition()->get($lookup);
+            $updateContext = true;
         }
 
         if ($this->context->isBuiltinValue($definition)) {
@@ -69,32 +73,26 @@ class DefinitionIterator
             return $definition;
         }
 
-        $this->lookupStack[] = $definition->getLookupPath();
+        $lookup = $definition instanceof Definition ? $definition->getTreeAddress() : $lookup;
+
+        $this->lookupStack[] = $lookup;
 
         $resolver = ResolverFactory::get($definition);
 
+        // Treat $definition as an address for a different part of Definition tree
         if ($resolver === null && is_scalar($definition)) {
             $value = $this->get($definition);
+
+            if ($updateContext) {
+                $this->context->set($lookup, $value);
+            }
 
             array_pop($this->lookupStack);
 
             return $value;
         }
 
-        $resolver->setIterator($this);
-
-        $value = $resolver->resolve($definition);
-
-        // Need to refactor this in the future; there's too much swapping between Definition & array types.
-        if ($value instanceof Definition) {
-            $value = $value->toArray();
-
-            array_walk($value, function (&$childValue, $key) use ($lookup): void {
-                $childDefinition = is_scalar($childValue) ? $childValue : new Definition($childValue);
-
-                $childValue = $this->get($key, $lookup, $childDefinition, false);
-            });
-        }
+        $value = $this->getFromResolver($lookup, $definition, $resolver);
 
         if ($updateContext) {
             $this->context->set($lookup, $value);
@@ -107,6 +105,37 @@ class DefinitionIterator
 
     public function getRootDefinition(): Definition
     {
-        return $this->definition;
+        return $this->rootDefinition;
+    }
+
+    /**
+     * Get and parse a value from a resolver.
+     *
+     * @param Definition|string $definition
+     */
+    private function getFromResolver(string $lookup, $definition, Resolver\ResolverInterface $resolver)
+    {
+        $resolver->setIterator($this);
+
+        $value = $resolver->resolve($definition);
+
+        if ($value instanceof Definition) {
+            $rawValue = [];
+
+            foreach ($value->getKeys() as $key) {
+                $childDefinition = $value->get($key);
+                $fullKey         = $key;
+
+                if (is_scalar($childDefinition)) {
+                    $fullKey = $lookup . '.' . $key;
+                }
+
+                $rawValue[$key] = $this->get($fullKey, $childDefinition);
+            }
+
+            $value = $rawValue;
+        }
+
+        return $value;
     }
 }

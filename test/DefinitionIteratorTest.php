@@ -22,202 +22,141 @@ class DefinitionIteratorTest extends TestCase
 {
     use MockeryPHPUnitIntegration;
 
-    /**
-     * @var DefinitionIterator
-     */
-    private $iterator;
-
-    /**
-     * @var Context|Mockery\MockInterface
-     */
-    private $mockContext;
-
-    /**
-     * @var Definition|Mockery\MockInterface
-     */
-    private $mockDefinition;
-
-    /**
-     * @var ResolverFactory|Mockery\MockInterface
-     */
-    private $mockResolverFactory;
-
-    protected function setUp(): void
-    {
-        $this->mockContext         = Mockery::mock(Context::class);
-        $this->mockDefinition      = Mockery::mock(Definition::class);
-        $this->mockResolverFactory = Mockery::mock('alias:' . ResolverFactory::class);
-
-        $this->mockContext->shouldReceive('has')
-            ->with(Mockery::any())
-            ->andReturn(false)
-            ->byDefault();
-        $this->mockContext->shouldReceive('isBuiltinValue')
-            ->with(Mockery::any())
-            ->andReturn(false)
-            ->byDefault();
-        $this->mockContext->shouldNotReceive('get')
-            ->byDefault();
-
-        $this->iterator = new DefinitionIterator($this->mockDefinition, $this->mockContext);
-    }
-
-    public function testDefinitionIsBuiltIn(): void
-    {
-        $this->mockDefinition->shouldReceive('get')
-            ->with('lookup value')
-            ->andReturn('definition value');
-
-        $this->mockContext->shouldReceive('isBuiltinValue')
-            ->with('definition value')
-            ->andReturn(true);
-        $this->mockContext->shouldReceive('set')
-            ->with('lookup value', 'definition value')
-            ->once();
-
-        verify($this->iterator->get('lookup value'))->is()->sameAs('definition value');
-    }
-
     public function testDefinitionLoop(): void
     {
-        $this->mockDefinition->shouldReceive('get')
-            ->with('lookup value')
-            ->andReturn('lookup value');
+        $context    = new Context([]);
+        $definition = new Definition([
+            'key1' => 'key2',
+            'key2' => 'key3',
+            'key3' => 'key1',
+        ]);
 
-        $this->mockResolverFactory->shouldReceive('get')
-            ->with('lookup value')
+        $iterator = new DefinitionIterator($definition, $context);
+
+        $resolverFactory = Mockery::mock('alias:' . ResolverFactory::class);
+
+        $resolverFactory->shouldReceive('get')
+            ->with(Mockery::any())
             ->andReturnNull();
 
         $this->expectException(\RuntimeException::class);
         $this->expectExceptionMessage('Definition appears to contain a loop');
 
-        $this->iterator->get('lookup value');
+        $iterator->get('key1');
     }
 
-    public function testGetFromContext(): void
+    public function testDefinitionValueIsBuiltin(): void
     {
-        $this->mockContext->shouldReceive('has')
-            ->with('lookup value')
-            ->andReturn(true);
-        $this->mockContext->shouldReceive('get')
-            ->with('lookup value')
-            ->andReturn('context value');
+        $context    = new Context([]);
+        $definition = new Definition(['key' => true]);
+        $iterator   = new DefinitionIterator($definition, $context);
 
-        verify($this->iterator->get('lookup value'))->is()->sameAs('context value');
+        verify($iterator->get('key'))->is()->true();
+
+        // Key has been added to context
+        verify($context->get('key'))->is()->true();
+
+        verify($iterator->get('child-key', false))->is()->false();
+
+        // Key was not added to context
+        verify($context->has('child-key'))->is()->false();
     }
 
-    public function testGetFromResolver(): void
+    public function testIteratingDefinitionTree(): void
     {
-        $mockResolver = Mockery::mock(ResolverInterface::class);
-
-        $this->mockDefinition->shouldReceive('get')
-            ->globally()->ordered()
-            ->with('lookup value')
-            ->andReturn('definition value');
-
-        $this->mockResolverFactory->shouldReceive('get')
-            ->globally()->ordered()
-            ->with('definition value')
-            ->andReturn($mockResolver);
-
-        $mockResolver->shouldReceive('setIterator')
-            ->with($this->iterator)
-            ->ordered();
-        $mockResolver->shouldReceive('resolve')
-            ->with('definition value')
-            ->ordered()
-            ->andReturn('resolver value');
-
-        $this->mockContext->shouldReceive('set')
-            ->with('lookup value', 'resolver value');
-
-        verify($this->iterator->get('lookup value'))->is()->sameAs('resolver value');
-    }
-
-    public function testGetResovlerDefinition(): void
-    {
-        $mockResolver    = Mockery::mock(ResolverInterface::class);
-        $childDefinition = new Definition([
-            'key1' => 'value',
-            'key2' => 'value',
+        $context    = new Context([]);
+        $definition = new Definition([
+            'key1' => 'key2',
+            'key2' => true,
+            'key4' => false,
         ]);
 
-        $resolvedValues = [
-            'key1' => 'context value 1',
-            'key2' => 'context value 2',
-        ];
+        $iterator = new DefinitionIterator($definition, $context);
 
-        $this->mockDefinition->shouldReceive('get')
-            ->globally()->ordered()
-            ->with('lookup value')
-            ->andReturn('definition value');
+        $resolverFactory = Mockery::mock('alias:' . ResolverFactory::class);
 
-        $this->mockResolverFactory->shouldReceive('get')
-            ->globally()->ordered()
-            ->with('definition value')
+        $resolverFactory->shouldReceive('get')
+            ->with(Mockery::any())
+            ->andReturnNull();
+
+        verify($iterator->get('key1'))->is()->true();
+
+        // Both values added to context
+        verify($context->get('key1'))->is()->true();
+        verify($context->get('key2'))->is()->true();
+
+        // Child definition is an address for a value in the root definition
+        verify($iterator->get('key3', 'key4'))->is()->false();
+
+        // Only value from root definition is added to context
+        verify($context->has('key3'))->is()->false();
+        verify($context->get('key4'))->is()->false();
+    }
+
+    public function testLookupInContext(): void
+    {
+        $context    = new Context(['key' => 'context value']);
+        $definition = new Definition([]);
+        $iterator   = new DefinitionIterator($definition, $context);
+
+        verify($iterator->get('key'))->is()->sameAs('context value');
+    }
+
+    public function testResolverValueDefinition(): void
+    {
+        $context         = new Context([]);
+        $definition      = new Definition(['key' => 'resolver-definition']);
+        $childDefinition = new Definition(['child-key' => true]);
+        $iterator        = new DefinitionIterator($definition, $context);
+        $resolverFactory = Mockery::mock('alias:' . ResolverFactory::class);
+        $mockResolver    = Mockery::mock(ResolverInterface::class);
+
+        $resolverFactory->shouldReceive('get')
+            ->with('resolver-definition')
             ->andReturn($mockResolver);
 
         $mockResolver->shouldReceive('setIterator')
-            ->with($this->iterator)
-            ->ordered();
+            ->with($iterator);
         $mockResolver->shouldReceive('resolve')
-            ->with('definition value')
-            ->ordered()
+            ->with('resolver-definition')
             ->andReturn($childDefinition);
 
-        $this->mockContext->shouldReceive('has')
-            ->with('key1')
-            ->andReturn(true);
-        $this->mockContext->shouldReceive('has')
-            ->with('key2')
-            ->andReturn(true);
-        $this->mockContext->shouldReceive('get')
-            ->with('key1')
-            ->andReturn('context value 1');
-        $this->mockContext->shouldReceive('get')
-            ->with('key2')
-            ->andReturn('context value 2');
+        verify($iterator->get('key'))->is()->sameAs(['child-key' => true]);
+        verify($context->get('key.child-key'))->is()->true();
 
-        $this->mockContext->shouldReceive('set')
-            ->once()
-            ->with('lookup value', $resolvedValues);
-
-        verify($this->iterator->get('lookup value'))->is()->sameAs($resolvedValues);
+        // Intermediate value was not added to context
+        verify($context->has('child-key'))->is()->false();
     }
 
-    public function testGetSecondaryLookup(): void
+    public function testScalarResolverValue(): void
     {
-        $this->mockDefinition->shouldReceive('get')
-            ->globally()->ordered()
-            ->with('lookup value')
-            ->andReturn('definition value');
+        $context         = new Context([]);
+        $definition      = new Definition(['key' => 'resolver-definition']);
+        $childDefinition = new Definition(['child-key' => 'resolver-for-child']);
+        $iterator        = new DefinitionIterator($definition, $context);
+        $resolverFactory = Mockery::mock('alias:' . ResolverFactory::class);
+        $mockResolver    = Mockery::mock(ResolverInterface::class);
 
-        $this->mockResolverFactory->shouldReceive('get')
-            ->globally()->ordered()
-            ->with('definition value')
-            ->andReturnNull();
+        $resolverFactory->shouldReceive('get')
+            ->with('resolver-definition')
+            ->andReturn($mockResolver);
+        $resolverFactory->shouldReceive('get')
+            ->with($childDefinition)
+            ->andReturn($mockResolver);
 
-        $this->mockContext->shouldReceive('has')
-            ->globally()->ordered()
-            ->with('definition value')
-            ->andReturn(true);
-        $this->mockContext->shouldReceive('get')
-            ->globally()->ordered()
-            ->with('definition value')
-            ->andReturn('context value');
+        $mockResolver->shouldReceive('setIterator')
+            ->with($iterator);
+        $mockResolver->shouldReceive('resolve')
+            ->with('resolver-definition')
+            ->andReturn('resolver value');
+        $mockResolver->shouldReceive('resolve')
+            ->with($childDefinition)
+            ->andReturn('child resolver value');
 
-        verify($this->iterator->get('lookup value'))->is()->sameAs('context value');
-    }
+        verify($iterator->get('key'))->is()->sameAs('resolver value');
+        verify($context->get('key'))->is()->sameAs('resolver value');
 
-    public function testNoDefinition(): void
-    {
-        $this->mockDefinition->shouldReceive('get')
-            ->with('lookup value')
-            ->andReturnNull();
-
-        $this->expectException(\RuntimeException::class);
-        $this->expectExceptionMessage('No definition for lookup value');
-
-        $this->iterator->get('lookup value');
+        verify($iterator->get('child-key', $childDefinition))->is()->sameAs('child resolver value');
+        verify($context->has('child-key'))->is()->false();
     }
 }
