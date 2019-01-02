@@ -12,6 +12,9 @@ use Zend\Http\PhpEnvironment\Request;
 
 class Context extends AbstractKeyValueStore
 {
+    /**
+     * Static values that should always return as-is.
+     */
     public const BUILTIN_VALUES = [
         true,
         false,
@@ -29,6 +32,9 @@ class Context extends AbstractKeyValueStore
         'hex',
     ];
 
+    /**
+     * Instantiate a Context from a Zend Http Request.
+     */
     public static function fromRequest(Request $request): self
     {
         return new self([
@@ -49,6 +55,11 @@ class Context extends AbstractKeyValueStore
         ]);
     }
 
+    /**
+     * If $lookup is a builtin value, return it directly.
+     *
+     * {@inheritdoc}
+     */
     public function get($lookup)
     {
         if ($this->isBuiltinValue($lookup)) {
@@ -58,7 +69,38 @@ class Context extends AbstractKeyValueStore
         return parent::get($lookup);
     }
 
-    public function set($lookup, $value): void
+    /**
+     * Is $lookup a builtin value or set in the store?
+     *
+     * {@inheritdoc}
+     */
+    public function has($lookup): bool
+    {
+        return $this->isBuiltinValue($lookup) || parent::has($lookup);
+    }
+
+    /**
+     * Is $value a built in constant or HTTP status code?
+     */
+    public function isBuiltinValue($value): bool
+    {
+        return \in_array($value, self::BUILTIN_VALUES, true) || $this->isStatusCode($value);
+    }
+
+    /**
+     * Is $value an HTTP status code?
+     */
+    public function isStatusCode($value): bool
+    {
+        return (\is_int($value) || ctype_digit($value)) && 100 <= $value && $value < 600;
+    }
+
+    /**
+     * @throws RuntimeException if $lookup is a built in value
+     *
+     * {@inheritdoc}
+     */
+    public function set(string $lookup, $value): void
     {
         if ($this->isBuiltinValue($lookup)) {
             throw new \RuntimeException('Cannot override a builtin value.');
@@ -67,6 +109,9 @@ class Context extends AbstractKeyValueStore
         parent::set($lookup, $value);
     }
 
+    /**
+     * Convert an an array of associative arrays to ['key' => $key, 'value' => $value].
+     */
     private static function assocToEntries(array $array): array
     {
         $result = [];
@@ -76,15 +121,5 @@ class Context extends AbstractKeyValueStore
         }
 
         return $result;
-    }
-
-    private function isBuiltinValue($value): bool
-    {
-        return \in_array($value, self::BUILTIN_VALUES, true) || $this->isStatusCode($value);
-    }
-
-    private function isStatusCode($value): bool
-    {
-        return (\is_int($value) || ctype_digit($value)) && 100 <= $value && $value < 600;
     }
 }

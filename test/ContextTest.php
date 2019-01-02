@@ -22,16 +22,12 @@ class ContextTest extends TestCase
     public function builtinDataProvider(): array
     {
         return [
-            [true],
-            [false],
             ['GET'],
             ['POST'],
             ['mustache'],
             ['text/plain'],
             ['utf8'],
-            [100],
             ['100'],
-            [599],
             ['599'],
         ];
     }
@@ -79,6 +75,36 @@ class ContextTest extends TestCase
         $subject = new Context([]);
 
         verify($subject->get($value))->is()->sameAs($value);
+    }
+
+    public function testIsBuiltinValue(): void
+    {
+        $subject = new Context([]);
+
+        verify($subject->isBuiltinValue('GET'))->is()->true();
+        verify($subject->isBuiltinValue('mustache'))->is()->true();
+        verify($subject->isBuiltinValue('utf8'))->is()->true();
+        verify($subject->isBuiltinValue('101'))->is()->true();
+        verify($subject->isBuiltinValue(201))->is()->true();
+
+        verify($subject->isBuiltinValue('some other value'))->is()->false();
+        verify($subject->isBuiltinValue('99'))->is()->false();
+        verify($subject->isBuiltinValue(700))->is()->false();
+        verify($subject->isBuiltinValue(3.14))->is()->false();
+        verify($subject->isBuiltinValue('6.28'))->is()->false();
+    }
+
+    public function testIsStatusCode(): void
+    {
+        $subject = new Context([]);
+
+        verify($subject->isStatusCode('101'))->is()->true();
+        verify($subject->isStatusCode(201))->is()->true();
+
+        verify($subject->isStatusCode('99'))->is()->false();
+        verify($subject->isStatusCode(700))->is()->false();
+        verify($subject->isStatusCode(3.14))->is()->false();
+        verify($subject->isStatusCode('6.28'))->is()->false();
     }
 
     /**
