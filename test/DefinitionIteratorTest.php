@@ -141,7 +141,7 @@ class DefinitionIteratorTest extends TestCase
             ->with('resolver-definition')
             ->andReturn($mockResolver);
         $resolverFactory->shouldReceive('get')
-            ->with($childDefinition)
+            ->with('resolver-for-child')
             ->andReturn($mockResolver);
 
         $mockResolver->shouldReceive('setIterator')
@@ -150,7 +150,7 @@ class DefinitionIteratorTest extends TestCase
             ->with('resolver-definition')
             ->andReturn('resolver value');
         $mockResolver->shouldReceive('resolve')
-            ->with($childDefinition)
+            ->with('resolver-for-child')
             ->andReturn('child resolver value');
 
         verify($iterator->get('key'))->is()->sameAs('resolver value');

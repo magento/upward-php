@@ -61,27 +61,38 @@ class DefinitionIterator
                 ));
             }
 
-            $definition    = $this->getRootDefinition()->get($lookup);
+            $definition    = $this->getRootDefinition();
             $updateContext = true;
         }
 
-        if ($this->context->isBuiltinValue($definition)) {
-            if ($updateContext) {
-                $this->context->set($lookup, $definition);
-            }
+        $definedValue = ($definition instanceof Definition) ? $definition->get($lookup) : $definition;
 
-            return $definition;
+        // Expand $lookup to full tree address so we can safely detect loops across different parts of the tree
+        if ($definedValue instanceof Definition) {
+            $lookup = $definedValue->getTreeAddress();
         }
 
-        $lookup = $definition instanceof Definition ? $definition->getTreeAddress() : $lookup;
+        if ($this->context->isBuiltinValue($definedValue)) {
+            if ($updateContext) {
+                $this->context->set($lookup, $definedValue);
+            }
+
+            return $definedValue;
+        }
 
         $this->lookupStack[] = $lookup;
 
-        $resolver = ResolverFactory::get($definition);
+        try {
+            $resolver = ResolverFactory::get($definedValue);
 
-        $value = ($resolver === null && is_scalar($definition))
-            ? $this->get($definition) // Treat $definition as an address for a different part of Definition tree
-            : $this->getFromResolver($lookup, $definition, $resolver);
+            $value = ($resolver === null && is_scalar($definedValue))
+                ? $this->get($definedValue) // Treat $definedValue as an address for a different part of Definition tree
+                : $this->getFromResolver($lookup, $definedValue, $resolver);
+        } catch (\Exception $e) {
+            array_pop($this->lookupStack);
+
+            throw $e;
+        }
 
         if ($updateContext) {
             $this->context->set($lookup, $value);
@@ -100,26 +111,19 @@ class DefinitionIterator
     /**
      * Get and parse a value from a resolver.
      *
-     * @param Definition|string $definition
+     * @param Definition|string $definedValue
      */
-    private function getFromResolver(string $lookup, $definition, Resolver\ResolverInterface $resolver)
+    private function getFromResolver(string $lookup, $definedValue, Resolver\ResolverInterface $resolver)
     {
         $resolver->setIterator($this);
 
-        $value = $resolver->resolve($definition);
+        $value = $resolver->resolve($definedValue);
 
         if ($value instanceof Definition) {
             $rawValue = [];
 
             foreach ($value->getKeys() as $key) {
-                $childDefinition = $value->get($key);
-                $fullKey         = $key;
-
-                if (is_scalar($childDefinition)) {
-                    $fullKey = $lookup . '.' . $key;
-                }
-
-                $rawValue[$key] = $this->get($fullKey, $childDefinition);
+                $rawValue[$key] = $this->get($key, $value);
             }
 
             $value = $rawValue;
