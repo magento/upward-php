@@ -79,20 +79,9 @@ class DefinitionIterator
 
         $resolver = ResolverFactory::get($definition);
 
-        // Treat $definition as an address for a different part of Definition tree
-        if ($resolver === null && is_scalar($definition)) {
-            $value = $this->get($definition);
-
-            if ($updateContext) {
-                $this->context->set($lookup, $value);
-            }
-
-            array_pop($this->lookupStack);
-
-            return $value;
-        }
-
-        $value = $this->getFromResolver($lookup, $definition, $resolver);
+        $value = ($resolver === null && is_scalar($definition))
+            ? $this->get($definition) // Treat $definition as an address for a different part of Definition tree
+            : $this->getFromResolver($lookup, $definition, $resolver);
 
         if ($updateContext) {
             $this->context->set($lookup, $value);
