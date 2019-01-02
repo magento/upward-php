@@ -23,6 +23,7 @@ class ResolverFactory
      */
     private static $resolverClasses = [
         self::RESOLVER_TYPE_INLINE => Resolver\Inline::class,
+        self::RESOLVER_TYPE_TEMPLATE => Resolver\Template::class,
     ];
 
     /**

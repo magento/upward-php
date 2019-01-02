@@ -14,7 +14,7 @@ use Magento\Upward\DefinitionIterator;
 abstract class AbstractResolver implements ResolverInterface
 {
     /**
-     * @var Magento\Upward\DefinitionIteterator
+     * @var DefinitionIterator
      */
     protected $iterator;
 
