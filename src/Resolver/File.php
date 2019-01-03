@@ -85,11 +85,6 @@ class File extends AbstractResolver
             $path = realpath($this->getIterator()->getRootDefinition()->getBasepath() . \DIRECTORY_SEPARATOR . $path);
         }
 
-        $value = file_get_contents($path);
-
-        // do parsing & encoding here?
-        $value;
-
-        return $value;
+        return file_get_contents($path);
     }
 }
