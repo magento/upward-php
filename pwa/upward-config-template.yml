@@ -13,8 +13,8 @@ body:
     resolver: inline
     inline: mustache
   provide:
-    - env
     - title
+    - contents
   template:
     resolver: inline
     inline: |
@@ -29,3 +29,6 @@ body:
 title:
   resolver: inline
   inline: 'My Awesome Title'
+contents:
+  resolver: inline
+  inline: '<p>Some Content</p>'

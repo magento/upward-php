@@ -35,7 +35,7 @@ class Template extends AbstractResolver
     {
         if ($definition->has('engine')) {
             $engine = $this->getIterator()->get('engine', $definition);
-            if (!in_array($engine, array_keys($this->templateClasses))) {
+            if (!key_exists($engine, $this->templateClasses)) {
                 return false;
             }
         }
@@ -48,12 +48,27 @@ class Template extends AbstractResolver
      */
     public function resolve($definition)
     {
+        $renderData = [];
+
         $engineValue = $definition->has('engine')
             ? $this->getIterator()->get('engine', $definition)
             : self::DEFAULT_TEMPLATE_ENGINE;
         $templateValue = $this->getIterator()->get('template', $definition);
-        $engine = new $this->templateClasses[$engineValue]();
+        /** @var Definition $provideValue */
+        $provideValue = $definition->get('provide');
+        if ($provideValue->has('resolver')) {
+            $renderData = $this->getIterator()->get('provide', $definition);
+        } else {
+            $provideKeys = $provideValue->toArray();
+            foreach ($provideKeys as $definitionKey) {
+                $renderData[$definitionKey] = $this->getIterator()->get($definitionKey);
+                if ($definitionKey === 'env') {
+                    $renderData[$definitionKey] = $renderData[$definitionKey]->toArray();
+                }
+            }
+        }
 
-        return $engine->render($templateValue, ['title' => 'My Awesome Title']);
+        $engine = new $this->templateClasses[$engineValue]();
+        return $engine->render($templateValue, $renderData);
     }
 }
