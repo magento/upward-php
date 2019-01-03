@@ -12,11 +12,12 @@ body:
   engine:
     resolver: inline
     inline: mustache
-  root: documentResult.data.document
+  provide:
+    - env
+    - title
   template:
     resolver: inline
     inline: |
-      {{> headtag}}
       {{> header}}
       <div class="document">
         <h1>{{title}}</h1>
@@ -25,3 +26,6 @@ body:
         </div>
       </div>
       {{> footer}}
+title:
+  resolver: inline
+  inline: 'My Awesome Title'

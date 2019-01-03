@@ -13,11 +13,14 @@ use Magento\Upward\Template\Mustache;
 
 class Template extends AbstractResolver
 {
+    const TEMPLATE_MUSTACHE = 'mustache';
+    const DEFAULT_TEMPLATE_ENGINE = self::TEMPLATE_MUSTACHE;
+
     /**
      * @var array map of template to renderer implementations
      */
     private $templateClasses = [
-        'mustache' => Mustache::class
+        self::TEMPLATE_MUSTACHE => Mustache::class
     ];
 
     /**
@@ -30,11 +33,9 @@ class Template extends AbstractResolver
 
     public function isValid(Definition $definition): bool
     {
-        if (!$definition->has('engine')) {
-            return false;
-        } else {
+        if ($definition->has('engine')) {
             $engine = $this->getIterator()->get('engine', $definition);
-            if (!in_array($engine, $this->templateClasses)) {
+            if (!in_array($engine, array_keys($this->templateClasses))) {
                 return false;
             }
         }
@@ -47,7 +48,12 @@ class Template extends AbstractResolver
      */
     public function resolve($definition)
     {
-        $template = $this->getIterator()->get('template', $definition);
-        return $template;
+        $engineValue = $definition->has('engine')
+            ? $this->getIterator()->get('engine', $definition)
+            : self::DEFAULT_TEMPLATE_ENGINE;
+        $templateValue = $this->getIterator()->get('template', $definition);
+        $engine = new $this->templateClasses[$engineValue]();
+
+        return $engine->render($templateValue, ['title' => 'My Awesome Title']);
     }
 }
