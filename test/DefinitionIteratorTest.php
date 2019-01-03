@@ -117,6 +117,9 @@ class DefinitionIteratorTest extends TestCase
 
         $mockResolver->shouldReceive('setIterator')
             ->with($iterator);
+        $mockResolver->shouldReceive('isValid')
+            ->with($definition)
+            ->andReturn(true);
         $mockResolver->shouldReceive('resolve')
             ->with('resolver-definition')
             ->andReturn($childDefinition);
@@ -126,6 +129,30 @@ class DefinitionIteratorTest extends TestCase
 
         // Intermediate value was not added to context
         verify($context->has('child-key'))->is()->false();
+    }
+
+    public function testResolverValueInvalidDefinition(): void
+    {
+        $context         = new Context([]);
+        $definition      = new Definition(['key' => ['child1' => 'value1']]);
+        $iterator        = new DefinitionIterator($definition, $context);
+        $resolverFactory = Mockery::mock('alias:' . ResolverFactory::class);
+        $mockResolver    = Mockery::mock(ResolverInterface::class);
+
+        $resolverFactory->shouldReceive('get')
+            ->with(Definition::class)
+            ->andReturn($mockResolver);
+
+        $mockResolver->shouldReceive('setIterator')
+            ->with($iterator);
+        $mockResolver->shouldReceive('isValid')
+            ->andReturn(false);
+        $mockResolver->shouldNotHaveReceived('resolve');
+
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('Definition {"child1":"value1"} is not valid for');
+
+        $iterator->get('key');
     }
 
     public function testScalarResolverValue(): void
