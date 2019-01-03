@@ -83,23 +83,6 @@ class ResolverFactoryTest extends TestCase
         verify(ResolverFactory::get('scalar value'))->is()->sameAs($resolver);
     }
 
-    public function testInvalidDefinition(): void
-    {
-        $resolver     = Mockery::mock(ResolverInterface::class);
-        $defininition = new Definition(['resolver' => 'test']);
-
-        $resolver->shouldReceive('isValid')
-            ->with($defininition)
-            ->andReturn(false);
-
-        ResolverFactory::addResolver('test', $resolver);
-
-        $this->expectException(\RuntimeException::class);
-        $this->expectExceptionMessage('Definition {"resolver":"test"} is not valid for'); // omit mock class name
-
-        ResolverFactory::get($defininition);
-    }
-
     public function testNoResolverClassDefined(): void
     {
         $defininition = new Definition(['resolver' => 'no-resolver']);

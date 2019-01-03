@@ -112,10 +112,19 @@ class DefinitionIterator
      * Get and parse a value from a resolver.
      *
      * @param Definition|string $definedValue
+     *
+     * @throws \RuntimeException if Definition is not valid
      */
     private function getFromResolver(string $lookup, $definedValue, Resolver\ResolverInterface $resolver)
     {
         $resolver->setIterator($this);
+        if ($definedValue instanceof Definition && !$resolver->isValid($definedValue)) {
+            throw new \RuntimeException(sprintf(
+                'Definition %s is not valid for %s.',
+                json_encode($definedValue),
+                \get_class($resolver)
+            ));
+        }
 
         $value = $resolver->resolve($definedValue);
 

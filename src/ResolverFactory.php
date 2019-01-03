@@ -82,19 +82,9 @@ class ResolverFactory
      */
     private static function getForDefinition(Definition $definition): Resolver\ResolverInterface
     {
-        $resolver = $definition->has('resolver')
+        return $definition->has('resolver')
             ? self::build($definition->get('resolver'))
             : self::inferResolver($definition);
-
-        if (!$resolver->isValid($definition)) {
-            throw new \RuntimeException(sprintf(
-                'Definition %s is not valid for %s.',
-                json_encode($definition),
-                \get_class($resolver)
-            ));
-        }
-
-        return $resolver;
     }
 
     /**
