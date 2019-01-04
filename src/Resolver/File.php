@@ -37,10 +37,6 @@ class File extends AbstractResolver
      */
     public function isValid(Definition $definition): bool
     {
-        if (!$definition->has($this->getIndicator())) {
-            return false;
-        }
-
         if ($definition->has('encoding')) {
             $encoding = $this->getIterator()->get('encoding', $definition);
 
@@ -57,7 +53,7 @@ class File extends AbstractResolver
             }
         }
 
-        return true;
+        return parent::isValid($definition);
     }
 
     /**
