@@ -10,5 +10,8 @@ namespace Magento\Upward\Template;
 
 interface TemplateInterface
 {
+    /**
+     * Given template and root data, return rendered output.
+     */
     public function render(string $template, array $data): string;
 }

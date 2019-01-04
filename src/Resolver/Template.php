@@ -13,18 +13,18 @@ use Magento\Upward\Template\Mustache;
 
 class Template extends AbstractResolver
 {
-    const TEMPLATE_MUSTACHE = 'mustache';
-    const DEFAULT_TEMPLATE_ENGINE = self::TEMPLATE_MUSTACHE;
+    public const DEFAULT_TEMPLATE_ENGINE = self::TEMPLATE_MUSTACHE;
+    public const TEMPLATE_MUSTACHE       = 'mustache';
 
     /**
      * @var array map of template to renderer implementations
      */
     private $templateClasses = [
-        self::TEMPLATE_MUSTACHE => Mustache::class
+        self::TEMPLATE_MUSTACHE => Mustache::class,
     ];
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function getIndicator(): string
     {
@@ -35,16 +35,20 @@ class Template extends AbstractResolver
     {
         if ($definition->has('engine')) {
             $engine = $this->getIterator()->get('engine', $definition);
-            if (!key_exists($engine, $this->templateClasses)) {
+            if (!array_key_exists($engine, $this->templateClasses)) {
                 return false;
             }
+        }
+
+        if (!$definition->has('provide')) {
+            return false;
         }
 
         return parent::isValid($definition);
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function resolve($definition)
     {
@@ -56,6 +60,7 @@ class Template extends AbstractResolver
         $templateValue = $this->getIterator()->get('template', $definition);
         /** @var Definition $provideValue */
         $provideValue = $definition->get('provide');
+
         if ($provideValue->has('resolver')) {
             $renderData = $this->getIterator()->get('provide', $definition);
         } else {
@@ -68,7 +73,8 @@ class Template extends AbstractResolver
             }
         }
 
-        $engine = new $this->templateClasses[$engineValue]();
+        $engine = new $this->templateClasses[$engineValue]($definition->getBasepath());
+
         return $engine->render($templateValue, $renderData);
     }
 }

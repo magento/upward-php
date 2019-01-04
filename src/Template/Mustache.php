@@ -15,13 +15,13 @@ class Mustache implements TemplateInterface
      */
     private $mustacheEngine;
 
-    public function __construct()
+    public function __construct(string $basePath)
     {
         $this->mustacheEngine = new \Mustache_Engine([
             'partials_loader' => new \Mustache_Loader_FilesystemLoader(
-                __DIR__ . '/../../pwa/templates',
+                $basePath . '/templates',
                 ['extension' => 'mst']
-            )
+            ),
         ]);
     }
 
