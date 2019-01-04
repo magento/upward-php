@@ -9,20 +9,10 @@ declare(strict_types=1);
 namespace Magento\Upward\Resolver;
 
 use Magento\Upward\Definition;
-use Magento\Upward\Template\Mustache;
+use Magento\Upward\Template\TemplateFactory;
 
 class Template extends AbstractResolver
 {
-    public const DEFAULT_TEMPLATE_ENGINE = self::TEMPLATE_MUSTACHE;
-    public const TEMPLATE_MUSTACHE       = 'mustache';
-
-    /**
-     * @var array map of template to renderer implementations
-     */
-    private $templateClasses = [
-        self::TEMPLATE_MUSTACHE => Mustache::class,
-    ];
-
     /**
      * {@inheritdoc}
      */
@@ -35,7 +25,9 @@ class Template extends AbstractResolver
     {
         if ($definition->has('engine')) {
             $engine = $this->getIterator()->get('engine', $definition);
-            if (!array_key_exists($engine, $this->templateClasses)) {
+            try {
+                TemplateFactory::get($definition->getBasepath(), $engine);
+            } catch (\InvalidArgumentException $e) {
                 return false;
             }
         }
@@ -56,7 +48,7 @@ class Template extends AbstractResolver
 
         $engineValue = $definition->has('engine')
             ? $this->getIterator()->get('engine', $definition)
-            : self::DEFAULT_TEMPLATE_ENGINE;
+            : null;
         $templateValue = $this->getIterator()->get('template', $definition);
         /** @var Definition $provideValue */
         $provideValue = $definition->get('provide');
@@ -73,7 +65,7 @@ class Template extends AbstractResolver
             }
         }
 
-        $engine = new $this->templateClasses[$engineValue]($definition->getBasepath());
+        $engine = TemplateFactory::get($definition->getBasepath(), $engineValue);
 
         return $engine->render($templateValue, $renderData);
     }

@@ -32,7 +32,7 @@ class ControllerTest extends TestCase
             'content-type' => 'text/plain',
         ]);
         $definitionIteratorMock->shouldReceive('get')->once()->with('body')->andReturn('Response Body');
-        $controller = new Controller($request, 'pwa/upward-config-sample.yml');
+        $controller = new Controller($request, 'pwa/upward-config-inline.yml');
         $response   = $controller();
         verify($response->getStatusCode())->is()->sameAs(200);
         verify($response->getHeaders())->isNot()->empty();
@@ -50,7 +50,7 @@ class ControllerTest extends TestCase
         $definitionIteratorMock->shouldReceive('get')->once()->with('body')->andThrow(
             new \RuntimeException('Exception Message')
         );
-        $controller = new Controller($request, 'pwa/upward-config-sample.yml');
+        $controller = new Controller($request, 'pwa/upward-config-inline.yml');
         $response   = $controller();
         verify($response->getStatusCode())->is()->sameAs(500);
         verify($response->getHeaders())->is()->empty();

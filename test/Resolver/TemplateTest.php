@@ -11,12 +11,20 @@ namespace Magento\Upward\Test\Resolver;
 use Magento\Upward\Definition;
 use Magento\Upward\DefinitionIterator;
 use Magento\Upward\Resolver\Template;
+use Magento\Upward\Template\TemplateFactory;
+use Magento\Upward\Template\TemplateInterface;
 use Mockery;
+use Mockery\Adapter\Phpunit\MockeryPHPUnitIntegration;
 use PHPUnit\Framework\TestCase;
 use function BeBat\Verify\verify;
 
+/**
+ * @runTestsInSeparateProcesses
+ */
 class TemplateTest extends TestCase
 {
+    use MockeryPHPUnitIntegration;
+
     /**
      * @var DefinitionIterator|Mockery\MockInterface
      */
@@ -43,21 +51,6 @@ class TemplateTest extends TestCase
                     'template' => true,
                 ]),
                 'expected' => true,
-            ],
-            'Valid Without Engine' => [
-                'definition' => new Definition([
-                    'template' => true,
-                    'provide'  => true,
-                ]),
-                'expected' => true,
-            ],
-            'Invalid Unsupported Engine' => [
-                'definition' => new Definition([
-                    'engine'   => 'sideburns',
-                    'provide'  => true,
-                    'template' => true,
-                ]),
-                'expected' => false,
             ],
             'Invalid No Template' => [
                 'definition' => new Definition([
@@ -86,10 +79,87 @@ class TemplateTest extends TestCase
      */
     public function testIsValid(Definition $definition, bool $expected): void
     {
-        $this->definitionIteratorMock
-            ->shouldReceive('get')
+        $templateFactoryMock = Mockery::mock('alias:' . TemplateFactory::class);
+        $templateFactoryMock->shouldReceive('get');
+        $this->definitionIteratorMock->shouldReceive('get')
             ->with('engine', $definition)
             ->andReturn($definition->get('engine'));
         verify($this->resolver->isValid($definition))->is()->sameAs($expected);
+    }
+
+    public function testIsValidWithException(): void
+    {
+        $definition = new Definition([
+            'engine'   => 'sideburns',
+            'provide'  => true,
+            'template' => true,
+        ]);
+        $templateFactoryMock = Mockery::mock('alias:' . TemplateFactory::class);
+        $templateFactoryMock->shouldReceive('get')->andThrow(\InvalidArgumentException::class);
+        $this->definitionIteratorMock->shouldReceive('get')
+            ->with('engine', $definition)
+            ->andReturn($definition->get('engine'));
+        verify($this->resolver->isValid($definition))->is()->false();
+    }
+
+    public function testResolveWithResolvedValue(): void
+    {
+        $templateFactoryMock = Mockery::mock('alias:' . TemplateFactory::class);
+        $engineMock          = Mockery::mock(TemplateInterface::class);
+        $definition          = new Definition([
+            'engine'   => 'mustache',
+            'template' => 'My Template',
+            'provide'  => [
+                'resolver' => 'inline',
+                'inline'   => [
+                    'inlineKey' => [
+                        'resolver' => 'inline',
+                        'inline'   => 'inlineValue',
+                    ],
+                ],
+            ],
+        ]);
+        $this->definitionIteratorMock->shouldReceive('get')
+            ->with('engine', $definition)
+            ->andReturn($definition->get('engine'));
+        $this->definitionIteratorMock->shouldReceive('get')
+            ->with('template', $definition)
+            ->andReturn($definition->get('template'));
+        $this->definitionIteratorMock->shouldReceive('get')
+            ->with('provide')
+            ->andReturn(['inlineKey' => 'inlineValue']);
+        $templateFactoryMock->shouldReceive('get')
+            ->with(__DIR__, 'mustache')
+            ->andReturn($engineMock);
+        $engineMock->shouldReceive('render')
+            ->with('My Template', ['inlineKey' => 'inlineValue'])
+            ->andReturn('My Rendered Template');
+    }
+
+    public function testResolveWithRootValue(): void
+    {
+        $templateFactoryMock = Mockery::mock('alias:' . TemplateFactory::class);
+        $engineMock          = Mockery::mock(TemplateInterface::class);
+        $definition          = new Definition([
+            'template' => 'My Template',
+            'provide'  => [
+                'rootValue',
+            ],
+        ]);
+        $this->definitionIteratorMock->shouldReceive('get')
+            ->with('engine', $definition)
+            ->andReturn($definition->get('engine'));
+        $this->definitionIteratorMock->shouldReceive('get')
+            ->with('template', $definition)
+            ->andReturn($definition->get('template'));
+        $this->definitionIteratorMock->shouldReceive('get')
+            ->with('rootValue')
+            ->andReturn('resolvedRootValue');
+        $templateFactoryMock->shouldReceive('get')
+            ->with(__DIR__, null)
+            ->andReturn($engineMock);
+        $engineMock->shouldReceive('render')
+            ->with('My Template', ['rootValue' => 'resolvedRootValue'])
+            ->andReturn('My Rendered Template');
     }
 }
