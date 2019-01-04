@@ -22,6 +22,7 @@ class ResolverFactory
      * @var array map of resolver key to their class implementation
      */
     private static $resolverClasses = [
+        self::RESOLVER_TYPE_FILE   => Resolver\File::class,
         self::RESOLVER_TYPE_INLINE => Resolver\Inline::class,
     ];
 
