@@ -41,7 +41,13 @@ class Definition extends AbstractKeyValueStore
      */
     public static function fromYamlFile(string $filePath): self
     {
-        $instance = new static(Yaml::parseFile($filePath));
+        $data = Yaml::parseFile($filePath);
+
+        if (!\is_array($data)) {
+            throw new \InvalidArgumentException("File ${filePath} could not be parsed as YAML.");
+        }
+
+        $instance = new static($data);
         $instance->setBasepath(\dirname($filePath));
 
         return $instance;
