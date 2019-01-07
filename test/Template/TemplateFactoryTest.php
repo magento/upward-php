@@ -20,7 +20,7 @@ class TemplateFactoryTest extends TestCase
 
     public function testGetWithEngine(): void
     {
-        verify(TemplateFactory::get(__DIR__, 'mustache'))->is()->instanceOf(Mustache::class);
+        verify(TemplateFactory::get(__DIR__ . '/../_data', 'mustache'))->is()->instanceOf(Mustache::class);
     }
 
     public function testGetWithInvalidEngine(): void
@@ -28,11 +28,11 @@ class TemplateFactoryTest extends TestCase
         $this->expectException(\InvalidArgumentException::class);
         $this->expectExceptionMessage('sideburns could not be found or does not implement TemplateInterface');
 
-        TemplateFactory::get(__DIR__, 'sideburns');
+        TemplateFactory::get(__DIR__ . '/../_data', 'sideburns');
     }
 
     public function testGetWithoutEngine(): void
     {
-        verify(TemplateFactory::get(__DIR__, null))->is()->instanceOf(Mustache::class);
+        verify(TemplateFactory::get(__DIR__ . '/../_data', null))->is()->instanceOf(Mustache::class);
     }
 }
