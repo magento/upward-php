@@ -126,14 +126,15 @@ class TemplateTest extends TestCase
             ->with('template', $definition)
             ->andReturn($definition->get('template'));
         $this->definitionIteratorMock->shouldReceive('get')
-            ->with('provide')
+            ->with('provide', $definition)
             ->andReturn(['inlineKey' => 'inlineValue']);
         $templateFactoryMock->shouldReceive('get')
-            ->with(__DIR__, 'mustache')
+            ->with($definition->getBasepath(), 'mustache')
             ->andReturn($engineMock);
         $engineMock->shouldReceive('render')
             ->with('My Template', ['inlineKey' => 'inlineValue'])
             ->andReturn('My Rendered Template');
+        $this->resolver->resolve($definition);
     }
 
     public function testResolveWithRootValue(): void
@@ -156,10 +157,11 @@ class TemplateTest extends TestCase
             ->with('rootValue')
             ->andReturn('resolvedRootValue');
         $templateFactoryMock->shouldReceive('get')
-            ->with(__DIR__, null)
+            ->with($definition->getBasepath(), null)
             ->andReturn($engineMock);
         $engineMock->shouldReceive('render')
             ->with('My Template', ['rootValue' => 'resolvedRootValue'])
             ->andReturn('My Rendered Template');
+        $this->resolver->resolve($definition);
     }
 }
