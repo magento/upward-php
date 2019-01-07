@@ -51,7 +51,7 @@ class Context extends AbstractKeyValueStore
                     'query'    => $request->getQuery()->toArray(),
                 ],
             ],
-            'env' => $request->getEnv()->toArray(),
+            'env' => getenv(),
         ]);
     }
 
