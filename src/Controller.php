@@ -26,9 +26,16 @@ class Controller
         \Zend\Http\PhpEnvironment\Request $request,
         string $upwardConfig
     ) {
-        $this->request            = $request;
-        $this->context            = Context::fromRequest($request);
-        $this->definition         = Definition::fromYamlFile($upwardConfig);
+        $this->request    = $request;
+        $this->context    = Context::fromRequest($request);
+        $this->definition = Definition::fromYamlFile($upwardConfig);
+
+        foreach (['status', 'headers', 'body'] as $key) {
+            if (!$this->definition->has($key)) {
+                throw new \RuntimeException("Definition YAML is missing required key: ${key}");
+            }
+        }
+
         $this->definitionIterator = new DefinitionIterator($this->definition, $this->context);
     }
 

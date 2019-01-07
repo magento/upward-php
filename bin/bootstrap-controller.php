@@ -18,15 +18,8 @@ try {
 
 $upwardConfig = getenv('UPWARD_PHP_UPWARD_PATH');
 if (!$upwardConfig) {
+    echo 'No path to UPWARD YAML file provided.' . PHP_EOL;
     exit(1);
 }
 
-$controller = new Controller(new Request(), $upwardConfig);
-$response   = $controller();
-
-header($response->renderStatusLine());
-foreach ($response->getHeaders() as $header) {
-    header($header->toString());
-}
-
-echo $response->getBody();
+return new Controller(new Request(), $upwardConfig);
