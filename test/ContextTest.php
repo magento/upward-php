@@ -48,9 +48,8 @@ class ContextTest extends TestCase
             ->andReturn('/request/path');
         $request->shouldReceive('getUri->getQuery')
             ->andReturn('query=query-value');
-        $request->shouldReceive('getEnv->toArray')
-            ->andReturn(['ENV_NAME' => 'env value']);
 
+        putenv('ENV_NAME=envValue');
         $subject = Context::fromRequest($request);
 
         verify($subject->get('request.headers.Request-Header'))->is()->sameAs('header value');
@@ -64,7 +63,7 @@ class ContextTest extends TestCase
         verify($subject->get('request.url.pathname'))->is()->sameAs('/request/path');
         verify($subject->get('request.url.search'))->is()->sameAs('?query=query-value');
         verify($subject->get('request.url.query.query'))->is()->sameAs('query-value');
-        verify($subject->get('env.ENV_NAME'))->is()->sameAs('env value');
+        verify($subject->get('env.ENV_NAME'))->is()->sameAs('envValue');
     }
 
     /**
