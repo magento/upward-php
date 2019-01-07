@@ -18,14 +18,14 @@ body:
   template:
     resolver: inline
     inline: |
-      {{> header}}
+      {{> templates/header}}
       <div class="document">
         <h1>{{title}}</h1>
         <div class="document-body">
           {{& contents}}
         </div>
       </div>
-      {{> footer}}
+      {{> templates/footer}}
 title:
   resolver: inline
   inline: 'My Awesome Title'

@@ -18,10 +18,7 @@ class Mustache implements TemplateInterface
     public function __construct(string $basePath)
     {
         $this->mustacheEngine = new \Mustache_Engine([
-            'partials_loader' => new \Mustache_Loader_FilesystemLoader(
-                $basePath . '/templates',
-                ['extension' => 'mst']
-            ),
+            'partials_loader' => new \Mustache_Loader_FilesystemLoader($basePath, ['extension' => 'mst']),
         ]);
     }
 

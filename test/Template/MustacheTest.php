@@ -20,7 +20,7 @@ class MustacheTest extends TestCase
     public function testRender(): void
     {
         $mustacheEngine = new Mustache(__DIR__ . '/../_data');
-        verify($mustacheEngine->render('{{> template}}', ['variable' => 'custom variable']))
+        verify($mustacheEngine->render('{{> templates/template}}', ['variable' => 'custom variable']))
             ->will()->contain('<h1>A Mustache Template with a custom variable</h1>');
     }
 }
