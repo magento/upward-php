@@ -33,9 +33,6 @@
             "Magento\\Upward\\Test\\": "test"
         }
     },
-    "bin": [
-        "bin/upward"
-    ],
     "config": {
       "sort-packages": true
     },
