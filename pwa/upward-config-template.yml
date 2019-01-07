@@ -1,0 +1,34 @@
+status:
+  resolver: inline
+  inline: 200
+headers:
+  resolver: inline
+  inline:
+    content-type:
+      resolver: inline
+      inline: 'text/html'
+body:
+  resolver: template
+  engine:
+    resolver: inline
+    inline: mustache
+  provide:
+    - title
+    - contents
+  template:
+    resolver: inline
+    inline: |
+      {{> templates/header}}
+      <div class="document">
+        <h1>{{title}}</h1>
+        <div class="document-body">
+          {{& contents}}
+        </div>
+      </div>
+      {{> templates/footer}}
+title:
+  resolver: inline
+  inline: 'My Awesome Title'
+contents:
+  resolver: inline
+  inline: '<p>Some Content</p>'
