@@ -8,8 +8,13 @@ declare(strict_types=1);
 
 namespace Magento\Upward;
 
+use Zend\Http\PhpEnvironment\Request;
+use Zend\Http\Response;
+
 class Controller
 {
+    public const STANDARD_FIELDS = ['status', 'headers', 'body'];
+
     /** @var Context */
     private $context;
 
@@ -19,18 +24,16 @@ class Controller
     /** @var DefinitionIterator */
     private $definitionIterator;
 
-    /** @var \Zend\Http\PhpEnvironment\Request */
+    /** @var Request */
     private $request;
 
-    public function __construct(
-        \Zend\Http\PhpEnvironment\Request $request,
-        string $upwardConfig
-    ) {
+    public function __construct(Request $request, string $upwardConfig)
+    {
         $this->request    = $request;
         $this->context    = Context::fromRequest($request);
         $this->definition = Definition::fromYamlFile($upwardConfig);
 
-        foreach (['status', 'headers', 'body'] as $key) {
+        foreach (self::STANDARD_FIELDS as $key) {
             if (!$this->definition->has($key)) {
                 throw new \RuntimeException("Definition YAML is missing required key: ${key}");
             }
@@ -42,18 +45,27 @@ class Controller
     /**
      * Executes request and returns response.
      */
-    public function __invoke(): \Zend\Http\Response
+    public function __invoke(): Response
     {
-        $response = new \Zend\Http\Response();
         try {
-            $response->setStatusCode($this->definitionIterator->get('status'));
-            $response->getHeaders()->addHeaders($this->definitionIterator->get('headers'));
-            $response->setContent($this->definitionIterator->get('body'));
+            foreach (self::STANDARD_FIELDS as $key) {
+                ${$key} = $this->definitionIterator->get($key);
+
+                if (${$key} instanceof Response) {
+                    return ${$key};
+                }
+            }
         } catch (\RuntimeException $e) {
-            $response->setStatusCode(500);
-            $response->getHeaders()->clearHeaders();
-            $response->setContent($e->getMessage());
+            $status  = 500;
+            $headers = [];
+            $body    = $e->getMessage();
         }
+
+        $response = new Response();
+
+        $response->setStatusCode($status);
+        $response->getHeaders()->addHeaders($headers);
+        $response->setContent($body);
 
         return $response;
     }
