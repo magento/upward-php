@@ -1,0 +1,11 @@
+status:
+  resolver: proxy
+headers:
+  resolver: proxy
+body:
+  resolver: proxy
+
+proxy:
+  target: env.MAGENTO_BACKEND_URL
+  ignoreSSLErrors:
+    inline: true
