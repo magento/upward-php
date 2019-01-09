@@ -54,6 +54,8 @@ class DirectoryTest extends TestCase
             'Missing Directory' => ['directory' => './not-real',       'filename' => '/sample.txt'],
             'Not Directory'     => ['directory' => basename(__FILE__), 'filename' => '/sample.txt'],
             'Outside Directory' => ['directory' => './_data',          'filename' => '/../' . basename(__FILE__)],
+            'File is Root'      => ['directory' => './_data',          'filename' => '/'],
+            'File is Directory' => ['directory' => './_data',          'filename' => '/test'],
         ];
     }
 

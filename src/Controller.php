@@ -27,6 +27,9 @@ class Controller
     /** @var Request */
     private $request;
 
+    /**
+     * @throws \RuntimeException if a required key is missing from $upwardCofig file
+     */
     public function __construct(Request $request, string $upwardConfig)
     {
         $this->request    = $request;
@@ -58,7 +61,7 @@ class Controller
         } catch (\RuntimeException $e) {
             $status  = 500;
             $headers = [];
-            $body    = $e->getMessage();
+            $body    = json_encode(['error' => $e->getMessage()]);
         }
 
         $response = new Response();
