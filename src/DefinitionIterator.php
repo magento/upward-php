@@ -46,7 +46,9 @@ class DefinitionIterator
         $updateContext = false;
 
         if ($this->context->has($lookup)) {
-            return $this->context->get($lookup);
+            $value = $this->context->get($lookup);
+
+            return ($value instanceof Context) ? $value->toArray() : $value;
         }
 
         if (\in_array($lookup, $this->lookupStack)) {
