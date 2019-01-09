@@ -8,6 +8,8 @@ declare(strict_types=1);
 
 namespace Magento\Upward;
 
+use Zend\Stdlib\ArrayUtils;
+
 abstract class AbstractKeyValueStore implements \JsonSerializable
 {
     /**
@@ -74,6 +76,14 @@ abstract class AbstractKeyValueStore implements \JsonSerializable
         }
 
         return true;
+    }
+
+    /**
+     * Are all the keys sequential numeric values?
+     */
+    public function isList(): bool
+    {
+        return ArrayUtils::isList($this->data);
     }
 
     /**

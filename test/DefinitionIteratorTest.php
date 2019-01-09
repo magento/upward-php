@@ -45,6 +45,26 @@ class DefinitionIteratorTest extends TestCase
         $iterator->get('key1');
     }
 
+    public function testDefinitionNumericKeys(): void
+    {
+        $context = new Context([]);
+
+        $definition = new Definition([
+            'statuses' => [
+                'ok',
+                'missing',
+                'error',
+            ],
+            'ok'      => 200,
+            'missing' => 404,
+            'error'   => 500,
+        ]);
+
+        $iterator = new DefinitionIterator($definition, $context);
+
+        verify($iterator->get('statuses'))->is()->sameAs([200, 404, 500]);
+    }
+
     public function testDefinitionValueIsBuiltin(): void
     {
         $context    = new Context([]);
