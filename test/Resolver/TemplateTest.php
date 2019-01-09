@@ -154,8 +154,8 @@ class TemplateTest extends TestCase
             ->with('template', $definition)
             ->andReturn($definition->get('template'));
         $this->definitionIteratorMock->shouldReceive('get')
-            ->with('rootValue')
-            ->andReturn('resolvedRootValue');
+            ->with('provide', $definition)
+            ->andReturn(['resolvedRootValue']);
         $templateFactoryMock->shouldReceive('get')
             ->with($definition->getBasepath(), null)
             ->andReturn($engineMock);
