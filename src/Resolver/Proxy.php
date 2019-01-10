@@ -18,7 +18,7 @@ class Proxy extends AbstractResolver
      */
     public function getIndicator(): string
     {
-        return 'proxy';
+        return 'target';
     }
 
     /**
@@ -26,17 +26,14 @@ class Proxy extends AbstractResolver
      */
     public function isValid(Definition $definition): bool
     {
-        $rootDefinition = $this->getIterator()->getRootDefinition();
-        if ($rootDefinition->has('proxy')) {
-            $proxyDefinition = $rootDefinition->get('proxy');
-            if (!$proxyDefinition->has('target')) {
+        if ($definition->has('ignoreSSLErrors')) {
+            $ignoreSSLErrors = $this->getIterator()->get('ignoreSSLErrors', $definition);
+            if (!\is_bool($ignoreSSLErrors)) {
                 return false;
             }
-        } else {
-            return false;
         }
 
-        return true;
+        return parent::isValid($definition);
     }
 
     /**
@@ -44,15 +41,20 @@ class Proxy extends AbstractResolver
      */
     public function resolve($definition)
     {
-        $target          = $this->getIterator()->get('proxy.target');
-        $ignoreSSLErrors = $this->getIterator()->getRootDefinition()->has('proxy.ignoreSSLErrors')
-            ? $this->getIterator()->get('proxy.ignoreSSLErrors')
+        if (!$definition instanceof Definition) {
+            throw new \InvalidArgumentException('$definition must be an instance of ' . Definition::class);
+        }
+
+        $target          = $this->getIterator()->get('target', $definition);
+        $ignoreSSLErrors = $definition->has('ignoreSSLErrors')
+            ? $this->getIterator()->get('ignoreSSLErrors', $definition)
             : false;
         $request = new \Zend\Http\PhpEnvironment\Request();
         $request->setUri($target);
-        if ($request->getHeaders()->has('Host')) {
-            $request->getHeaders()->removeHeader($request->getHeader('Host'));
-            $request->getHeaders()->addHeaderLine('Host', parse_url($target, PHP_URL_HOST));
+        $requestHeaders = $request->getHeaders();
+        if ($requestHeaders && $requestHeaders->has('Host')) {
+            $requestHeaders->removeHeader($request->getHeader('Host'));
+            $requestHeaders->addHeaderLine('Host', parse_url($target, PHP_URL_HOST));
         }
 
         $client = new Client(null, [

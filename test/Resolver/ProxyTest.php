@@ -15,6 +15,7 @@ use Mockery;
 use Mockery\Adapter\Phpunit\MockeryPHPUnitIntegration;
 use PHPUnit\Framework\TestCase;
 use Zend\Http\Client;
+use Zend\Http\Response;
 use function BeBat\Verify\verify;
 
 class ProxyTest extends TestCase
@@ -43,22 +44,19 @@ class ProxyTest extends TestCase
         return [
             'Valid' => [
                 'definition' => new Definition([
-                    'proxy' => [
-                        'target' => 'google.com',
-                    ],
+                    'target' => 'https://google.com',
                 ]),
                 'expected' => true,
             ],
-            'Invalid No Proxy' => [
+            'Invalid - No Target' => [
                 'definition' => new Definition([]),
                 'expected'   => false,
             ],
-            'Invalid No Target' => [
+            'Invalid - Wrong ignoreSSLErrors Type' => [
                 'definition' => new Definition([
-                    'proxy' => [
-                        'ignoreSSLErrors' => [
-                            'inline' => true,
-                        ],
+                    'target'          => 'https://google.com',
+                    'ignoreSSLErrors' => [
+                        'inline' => 'yes please',
                     ],
                 ]),
                 'expected' => false,
@@ -68,7 +66,7 @@ class ProxyTest extends TestCase
 
     public function testIndicator(): void
     {
-        verify($this->resolver->getIndicator())->is()->sameAs('proxy');
+        verify($this->resolver->getIndicator())->is()->sameAs('target');
     }
 
     /**
@@ -76,32 +74,55 @@ class ProxyTest extends TestCase
      */
     public function testIsValid(Definition $definition, bool $expected): void
     {
-        $this->definitionIteratorMock->shouldReceive('getRootDefinition')->andReturn($definition);
+        $this->definitionIteratorMock->shouldReceive('get')
+            ->with('ignoreSSLErrors', $definition)
+            ->andReturn($definition->get('ignoreSSLErrors'));
 
-        verify($this->resolver->isValid(new Definition([])))->is()->sameAs($expected);
+        verify($this->resolver->isValid($definition))->is()->sameAs($expected);
     }
 
     public function testResolve(): void
     {
-        $definition     = new Definition(['resolver' => 'proxy']);
-        $rootDefinition = new Definition([
-            'proxy' => [
-                'target'          => 'https://google.com',
-                'ignoreSSLErrors' => true,
-            ],
-        ]);
+        $definition = new Definition(['target' => 'https://google.com', 'ignoreSSLErrors' => true]);
 
         $this->definitionIteratorMock->shouldReceive('get')
-            ->with('proxy.target')
+            ->with('target', $definition)
             ->andReturn('https://google.com');
-        $this->definitionIteratorMock->shouldReceive('getRootDefinition')->andReturn($rootDefinition);
         $this->definitionIteratorMock->shouldReceive('get')
-            ->with('proxy.ignoreSSLErrors')
+            ->with('ignoreSSLErrors', $definition)
             ->andReturn(true);
 
+        $responseMock   = Mockery::mock(Response::class);
         $zendClientMock = Mockery::mock('overload:' . Client::class);
-        $zendClientMock->shouldReceive('send');
+        $zendClientMock->shouldReceive('send')->andReturn($responseMock);
 
-        $this->resolver->resolve($definition);
+        $resolverResponse = $this->resolver->resolve($definition);
+        verify($resolverResponse)->is()->sameAs($responseMock);
+    }
+
+    public function testResolveThrowsException(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('$definition must be an instance of Magento\\Upward\\Definition');
+
+        $this->resolver->resolve('Not a Definition');
+    }
+
+    public function testResolveValidateSSL(): void
+    {
+        $definition = new Definition(['target' => 'https://google.com']);
+
+        $this->definitionIteratorMock->shouldReceive('get')
+            ->with('target', $definition)
+            ->andReturn('https://google.com');
+        $this->definitionIteratorMock->shouldNotReceive('get')
+            ->with('ignoreSSLErrors', $definition);
+
+        $responseMock   = Mockery::mock(Response::class);
+        $zendClientMock = Mockery::mock('overload:' . Client::class);
+        $zendClientMock->shouldReceive('send')->andReturn($responseMock);
+
+        $resolverResponse = $this->resolver->resolve($definition);
+        verify($resolverResponse)->is()->sameAs($responseMock);
     }
 }

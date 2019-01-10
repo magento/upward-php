@@ -1,11 +1,8 @@
-status:
-  resolver: proxy
-headers:
-  resolver: proxy
-body:
-  resolver: proxy
+status: magentoProxy
+headers: magentoProxy
+body: magentoProxy
 
-proxy:
+magentoProxy:
   target: env.MAGENTO_BACKEND_URL
   ignoreSSLErrors:
     inline: true
