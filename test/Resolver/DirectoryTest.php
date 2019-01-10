@@ -101,13 +101,14 @@ class DirectoryTest extends TestCase
         verify($result->getStatusCode())->is()->sameAs(200);
         verify($result->getHeaders()->get('Content-Type')->getFieldValue())->is()->sameAs('text/plain');
         verify($result->getBody())->is()->equalToFile(__DIR__ . '/_data/sample.txt');
+    }
 
-        $stringResult = $this->resolver->resolve('_data');
+    public function testResolveException(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('$definition must be an instance of Magento\\Upward\\Definition');
 
-        verify($stringResult)->is()->instanceOf(Response::class);
-        verify($stringResult->getStatusCode())->is()->sameAs(200);
-        verify($stringResult->getHeaders()->get('Content-Type')->getFieldValue())->is()->sameAs('text/plain');
-        verify($stringResult->getBody())->is()->equalToFile(__DIR__ . '/_data/sample.txt');
+        $this->resolver->resolve('_data');
     }
 
     /**

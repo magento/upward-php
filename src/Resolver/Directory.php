@@ -23,8 +23,15 @@ class Directory extends AbstractResolver
         return 'directory';
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function isValid(Definition $definition): bool
     {
+        if (!$definition->has($this->getIndicator())) {
+            return false;
+        }
+
         $directory  = $this->getIterator()->get('directory', $definition);
         $upwardRoot = $definition->getBasepath();
 
@@ -34,7 +41,7 @@ class Directory extends AbstractResolver
             return false;
         }
 
-        return parent::isValid($definition);
+        return true;
     }
 
     /**
@@ -42,11 +49,11 @@ class Directory extends AbstractResolver
      */
     public function resolve($definition)
     {
-        $directory = $definition;
-
-        if ($definition instanceof Definition) {
-            $directory = $this->getIterator()->get('directory', $definition);
+        if (!$definition instanceof Definition) {
+            throw new \InvalidArgumentException('$definition must be an instance of ' . Definition::class);
         }
+
+        $directory = $this->getIterator()->get('directory', $definition);
 
         $response   = new Stream();
         $upwardRoot = $this->getIterator()->getRootDefinition()->getBasepath();
