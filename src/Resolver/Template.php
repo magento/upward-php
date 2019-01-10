@@ -8,7 +8,6 @@ declare(strict_types=1);
 
 namespace Magento\Upward\Resolver;
 
-use Magento\Upward\AbstractKeyValueStore;
 use Magento\Upward\Definition;
 use Magento\Upward\Template\TemplateFactory;
 

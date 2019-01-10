@@ -82,6 +82,40 @@ class DefinitionIteratorTest extends TestCase
         verify($context->has('child-key'))->is()->false();
     }
 
+    public function testIsContextFullyPopulated(): void
+    {
+        $context = new Context([
+            'context-only'       => 'value',
+            'static-value'       => 'some value',
+            'complex-definition' => ['x', 'y'],
+            'simple-definition'  => ['a', 'b'],
+            'unfinished-list'    => ['fist'],
+            'complete-list'      => ['first', 'second', 'third'],
+        ]);
+
+        $definition = new Definition([
+            'static-value'       => 'some definition',
+            'simple-definition'  => 'some.lookup.value',
+            'complex-definition' => [
+                'resolver' => 'something',
+                'param'    => 'value',
+                'key'      => 'another value',
+            ],
+            'unfinished-list' => ['first', 'second'],
+            'complete-list'   => ['first', 'second', 'third'],
+        ]);
+
+        $iterator = new DefinitionIterator($definition, $context);
+
+        verify($iterator->isContextFullyPopulated('missing-key'))->is()->false();
+        verify($iterator->isContextFullyPopulated('context-only'))->is()->true();
+        verify($iterator->isContextFullyPopulated('static-value'))->is()->true();
+        verify($iterator->isContextFullyPopulated('simple-definition'))->is()->true();
+        verify($iterator->isContextFullyPopulated('complex-definition'))->is()->true();
+        verify($iterator->isContextFullyPopulated('unfinished-list'))->is()->false();
+        verify($iterator->isContextFullyPopulated('complete-list'))->is()->true();
+    }
+
     public function testIteratingDefinitionTree(): void
     {
         $context    = new Context([]);

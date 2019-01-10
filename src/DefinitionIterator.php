@@ -45,7 +45,7 @@ class DefinitionIterator
     {
         $updateContext = false;
 
-        if ($this->context->has($lookup)) {
+        if ($this->isContextFullyPopulated($lookup)) {
             $value = $this->context->get($lookup);
 
             return ($value instanceof Context) ? $value->toArray() : $value;
@@ -96,6 +96,34 @@ class DefinitionIterator
     public function getRootDefinition(): Definition
     {
         return $this->rootDefinition;
+    }
+
+    /**
+     * Check if $lookup exists in Context, and if so that all of it's values have been loaded from the Definition.
+     */
+    public function isContextFullyPopulated($lookup): bool
+    {
+        if (!$this->context->has($lookup)) {
+            return false;
+        }
+
+        if (!$this->getRootDefinition()->has($lookup)) {
+            return true;
+        }
+
+        $value = $this->context->get($lookup);
+
+        if (!$value instanceof Context || !$value->isList()) {
+            return true;
+        }
+
+        $definition = $this->getRootDefinition()->get($lookup);
+
+        if (!$definition instanceof Definition || !$definition->isList()) {
+            return true;
+        }
+
+        return $value->count() >= $definition->count();
     }
 
     /**
