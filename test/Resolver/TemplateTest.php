@@ -71,7 +71,7 @@ class TemplateTest extends TestCase
 
     public function testIndicator(): void
     {
-        verify($this->resolver->getIndicator())->is()->sameAs('template');
+        verify($this->resolver->getIndicator())->is()->sameAs('engine');
     }
 
     /**

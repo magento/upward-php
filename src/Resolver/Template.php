@@ -18,12 +18,12 @@ class Template extends AbstractResolver
      */
     public function getIndicator(): string
     {
-        return 'template';
+        return 'engine';
     }
 
     public function isValid(Definition $definition): bool
     {
-        if ($definition->has('engine')) {
+        if ($definition->has($this->getIndicator())) {
             $engine = $this->getIterator()->get('engine', $definition);
             try {
                 TemplateFactory::get($definition->getBasepath(), $engine);
@@ -36,7 +36,11 @@ class Template extends AbstractResolver
             return false;
         }
 
-        return parent::isValid($definition);
+        if (!$definition->has('template')) {
+            return false;
+        }
+
+        return true;
     }
 
     /**

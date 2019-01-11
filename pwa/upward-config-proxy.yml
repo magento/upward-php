@@ -1,0 +1,8 @@
+status: magentoProxy
+headers: magentoProxy
+body: magentoProxy
+
+magentoProxy:
+  target: env.MAGENTO_BACKEND_URL
+  ignoreSSLErrors:
+    inline: true

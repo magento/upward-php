@@ -103,14 +103,6 @@ class DirectoryTest extends TestCase
         verify($result->getBody())->is()->equalToFile(__DIR__ . '/_data/sample.txt');
     }
 
-    public function testResolveException(): void
-    {
-        $this->expectException(\InvalidArgumentException::class);
-        $this->expectExceptionMessage('$definition must be an instance of Magento\\Upward\\Definition');
-
-        $this->resolver->resolve('_data');
-    }
-
     /**
      * @dataProvider dataProviderFor404
      */
@@ -127,5 +119,13 @@ class DirectoryTest extends TestCase
         verify($result)->is()->instanceOf(Response::class);
         verify($result->getStatusCode())->is()->sameAs(404);
         verify($result->getBody())->is()->empty();
+    }
+
+    public function testResolveException(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('$definition must be an instance of Magento\\Upward\\Definition');
+
+        $this->resolver->resolve('_data');
     }
 }

@@ -20,6 +20,8 @@ class TemplateFactory
     ];
 
     /**
+     * @param ?string $engine
+     *
      * @throws \InvalidArgumentException if class isn't found or is not the correct type
      */
     public static function get(string $basePath, ?string $engine): TemplateInterface
