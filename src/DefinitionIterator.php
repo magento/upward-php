@@ -45,8 +45,10 @@ class DefinitionIterator
     {
         $updateContext = false;
 
-        if ($this->context->has($lookup)) {
-            return $this->context->get($lookup);
+        if ($this->isContextFullyPopulated($lookup)) {
+            $value = $this->context->get($lookup);
+
+            return ($value instanceof Context) ? $value->toArray() : $value;
         }
 
         if (\in_array($lookup, $this->lookupStack)) {
@@ -72,22 +74,10 @@ class DefinitionIterator
             $lookup = $definedValue->getTreeAddress();
         }
 
-        if ($this->context->isBuiltinValue($definedValue)) {
-            if ($updateContext) {
-                $this->context->set($lookup, $definedValue);
-            }
-
-            return $definedValue;
-        }
-
         $this->lookupStack[] = $lookup;
 
         try {
-            $resolver = ResolverFactory::get($definedValue);
-
-            $value = ($resolver === null && is_scalar($definedValue))
-                ? $this->get($definedValue) // Treat $definedValue as an address for a different part of Definition tree
-                : $this->getFromResolver($lookup, $definedValue, $resolver);
+            $value = $this->getFromDefinedValue($lookup, $definedValue);
         } catch (\Exception $e) {
             array_pop($this->lookupStack);
 
@@ -106,6 +96,58 @@ class DefinitionIterator
     public function getRootDefinition(): Definition
     {
         return $this->rootDefinition;
+    }
+
+    /**
+     * Check if $lookup exists in Context, and if so that all of it's values have been loaded from the Definition.
+     */
+    public function isContextFullyPopulated($lookup): bool
+    {
+        if (!$this->context->has($lookup)) {
+            return false;
+        }
+
+        if (!$this->getRootDefinition()->has($lookup)) {
+            return true;
+        }
+
+        $value = $this->context->get($lookup);
+
+        if (!$value instanceof Context || !$value->isList()) {
+            return true;
+        }
+
+        $definition = $this->getRootDefinition()->get($lookup);
+
+        if (!$definition instanceof Definition || !$definition->isList()) {
+            return true;
+        }
+
+        return $value->count() >= $definition->count();
+    }
+
+    /**
+     * Get result for defined value, whether it's built in, a (traversable list of) lookup(s), or resolvable.
+     *
+     * @param string|Definition $definedValue
+     */
+    private function getFromDefinedValue(string $lookup, $definedValue)
+    {
+        if ($this->context->isBuiltinValue($definedValue)) {
+            return $definedValue;
+        }
+
+        if ($definedValue instanceof Definition && $definedValue->isList()) {
+            return array_map(function ($key) use ($lookup) {
+                return $this->get($key);
+            }, $definedValue->toArray());
+        }
+
+        $resolver = ResolverFactory::get($definedValue);
+
+        return ($resolver === null && is_scalar($definedValue))
+            ? $this->get($definedValue) // Treat $definedValue as an address for a different part of Definition tree
+            : $this->getFromResolver($lookup, $definedValue, $resolver);
     }
 
     /**

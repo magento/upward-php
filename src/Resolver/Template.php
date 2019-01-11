@@ -44,29 +44,16 @@ class Template extends AbstractResolver
      */
     public function resolve($definition)
     {
-        $renderData = [];
+        $engineName     = $definition->has('engine') ? $this->getIterator()->get('engine', $definition) : null;
+        $templateString = $this->getIterator()->get('template', $definition);
+        $renderData     = $this->getIterator()->get('provide', $definition);
 
-        $engineValue = $definition->has('engine')
-            ? $this->getIterator()->get('engine', $definition)
-            : null;
-        $templateValue = $this->getIterator()->get('template', $definition);
-        /** @var Definition $provideValue */
-        $provideValue = $definition->get('provide');
-
-        if ($provideValue->has('resolver')) {
-            $renderData = $this->getIterator()->get('provide', $definition);
-        } else {
-            $provideKeys = $provideValue->toArray();
-            foreach ($provideKeys as $definitionKey) {
-                $renderData[$definitionKey] = $this->getIterator()->get($definitionKey);
-                if ($definitionKey === 'env') {
-                    $renderData[$definitionKey] = $renderData[$definitionKey]->toArray();
-                }
-            }
+        if ($definition->get('provide')->isList()) {
+            $renderData = array_combine($definition->get('provide')->toArray(), $renderData);
         }
 
-        $engine = TemplateFactory::get($definition->getBasepath(), $engineValue);
+        $engine = TemplateFactory::get($definition->getBasepath(), $engineName);
 
-        return $engine->render($templateValue, $renderData);
+        return $engine->render($templateString, $renderData);
     }
 }

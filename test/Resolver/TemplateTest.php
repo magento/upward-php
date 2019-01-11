@@ -106,7 +106,8 @@ class TemplateTest extends TestCase
     {
         $templateFactoryMock = Mockery::mock('alias:' . TemplateFactory::class);
         $engineMock          = Mockery::mock(TemplateInterface::class);
-        $definition          = new Definition([
+
+        $definition = new Definition([
             'engine'   => 'mustache',
             'template' => 'My Template',
             'provide'  => [
@@ -119,6 +120,7 @@ class TemplateTest extends TestCase
                 ],
             ],
         ]);
+
         $this->definitionIteratorMock->shouldReceive('get')
             ->with('engine', $definition)
             ->andReturn($definition->get('engine'));
@@ -128,25 +130,30 @@ class TemplateTest extends TestCase
         $this->definitionIteratorMock->shouldReceive('get')
             ->with('provide', $definition)
             ->andReturn(['inlineKey' => 'inlineValue']);
+
         $templateFactoryMock->shouldReceive('get')
             ->with($definition->getBasepath(), 'mustache')
             ->andReturn($engineMock);
+
         $engineMock->shouldReceive('render')
             ->with('My Template', ['inlineKey' => 'inlineValue'])
             ->andReturn('My Rendered Template');
-        $this->resolver->resolve($definition);
+
+        verify($this->resolver->resolve($definition))->is()->sameAs('My Rendered Template');
     }
 
     public function testResolveWithRootValue(): void
     {
         $templateFactoryMock = Mockery::mock('alias:' . TemplateFactory::class);
         $engineMock          = Mockery::mock(TemplateInterface::class);
-        $definition          = new Definition([
+
+        $definition = new Definition([
             'template' => 'My Template',
             'provide'  => [
                 'rootValue',
             ],
         ]);
+
         $this->definitionIteratorMock->shouldReceive('get')
             ->with('engine', $definition)
             ->andReturn($definition->get('engine'));
@@ -154,14 +161,17 @@ class TemplateTest extends TestCase
             ->with('template', $definition)
             ->andReturn($definition->get('template'));
         $this->definitionIteratorMock->shouldReceive('get')
-            ->with('rootValue')
-            ->andReturn('resolvedRootValue');
+            ->with('provide', $definition)
+            ->andReturn(['resolvedRootValue']);
+
         $templateFactoryMock->shouldReceive('get')
             ->with($definition->getBasepath(), null)
             ->andReturn($engineMock);
+
         $engineMock->shouldReceive('render')
             ->with('My Template', ['rootValue' => 'resolvedRootValue'])
             ->andReturn('My Rendered Template');
-        $this->resolver->resolve($definition);
+
+        verify($this->resolver->resolve($definition))->is()->sameAs('My Rendered Template');
     }
 }

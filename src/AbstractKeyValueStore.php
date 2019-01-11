@@ -8,7 +8,9 @@ declare(strict_types=1);
 
 namespace Magento\Upward;
 
-abstract class AbstractKeyValueStore implements \JsonSerializable
+use Zend\Stdlib\ArrayUtils;
+
+abstract class AbstractKeyValueStore implements \JsonSerializable, \Countable
 {
     /**
      * @var array
@@ -18,6 +20,11 @@ abstract class AbstractKeyValueStore implements \JsonSerializable
     public function __construct(array $data)
     {
         $this->data = $data;
+    }
+
+    public function count(): int
+    {
+        return \count($this->data);
     }
 
     /**
@@ -31,7 +38,7 @@ abstract class AbstractKeyValueStore implements \JsonSerializable
      */
     public function get($lookup)
     {
-        if ($lookup === '') {
+        if (empty($lookup)) {
             return;
         }
 
@@ -74,6 +81,14 @@ abstract class AbstractKeyValueStore implements \JsonSerializable
         }
 
         return true;
+    }
+
+    /**
+     * Are all the keys sequential numeric values?
+     */
+    public function isList(): bool
+    {
+        return ArrayUtils::isList($this->data);
     }
 
     /**
@@ -124,6 +139,13 @@ abstract class AbstractKeyValueStore implements \JsonSerializable
 
         $key = array_shift($segments);
         if (array_key_exists($key, $data)) {
+            // $value should be appended w/o modifying any of the existing values in $data
+            if (\is_array($data[$key]) && \is_array($value)) {
+                $data[$key] = $data[$key] + $value;
+
+                return;
+            }
+
             throw new \RuntimeException('Lookup already exists in store.');
         }
 

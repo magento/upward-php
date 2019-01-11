@@ -22,6 +22,13 @@ class AbstractKeyValueStoreTest extends TestCase
         ];
     }
 
+    public function testCount(): void
+    {
+        $subject = $this->getSubject(['a', 'b', 'c']);
+
+        verify($subject->count())->is()->sameAs(3);
+    }
+
     public function testGet(): void
     {
         $subject = $this->getSubject(['key' => 'some value']);
@@ -164,6 +171,15 @@ class AbstractKeyValueStoreTest extends TestCase
         $this->expectExceptionMessage('Lookup would overwrite existing scalar value with an array.');
 
         $subject->set('key.child', 'some value');
+    }
+
+    public function testSetMergeValues(): void
+    {
+        $subject = $this->getSubject(['key' => ['a']]);
+
+        $subject->set('key', ['a', 'b', 'c']);
+
+        verify($subject->get('key')->toArray())->is()->sameAs(['a', 'b', 'c']);
     }
 
     public function testToArray(): void
