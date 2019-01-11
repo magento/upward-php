@@ -8,6 +8,8 @@ declare(strict_types=1);
 
 namespace Magento\Upward\Template;
 
+use Magento\Upward\Template\Mustache\Engine as MustacheEngine;
+
 class TemplateFactory
 {
     public const TEMPLATE_MUSTACHE = 'mustache';
@@ -16,7 +18,7 @@ class TemplateFactory
      * @var array map of template to renderer implementations
      */
     private static $templateClasses = [
-        self::TEMPLATE_MUSTACHE => Mustache::class,
+        self::TEMPLATE_MUSTACHE => MustacheEngine::class,
     ];
 
     /**

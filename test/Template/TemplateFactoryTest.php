@@ -8,7 +8,7 @@ declare(strict_types=1);
 
 namespace Magento\Upward\Test\Template;
 
-use Magento\Upward\Template\Mustache;
+use Magento\Upward\Template\Mustache\Engine;
 use Magento\Upward\Template\TemplateFactory;
 use Mockery\Adapter\Phpunit\MockeryPHPUnitIntegration;
 use PHPUnit\Framework\TestCase;
@@ -20,7 +20,7 @@ class TemplateFactoryTest extends TestCase
 
     public function testGetWithEngine(): void
     {
-        verify(TemplateFactory::get(__DIR__, 'mustache'))->is()->instanceOf(Mustache::class);
+        verify(TemplateFactory::get(__DIR__, 'mustache'))->is()->instanceOf(Engine::class);
     }
 
     public function testGetWithInvalidEngine(): void
@@ -33,6 +33,6 @@ class TemplateFactoryTest extends TestCase
 
     public function testGetWithoutEngine(): void
     {
-        verify(TemplateFactory::get(__DIR__, null))->is()->instanceOf(Mustache::class);
+        verify(TemplateFactory::get(__DIR__, null))->is()->instanceOf(Engine::class);
     }
 }
