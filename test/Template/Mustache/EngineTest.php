@@ -6,21 +6,21 @@
 
 declare(strict_types=1);
 
-namespace Magento\Upward\Test\Template;
+namespace Magento\Upward\Test\Template\Mustache;
 
-use Magento\Upward\Template\Mustache;
+use Magento\Upward\Template\Mustache\Engine;
 use Mockery\Adapter\Phpunit\MockeryPHPUnitIntegration;
 use PHPUnit\Framework\TestCase;
 use function BeBat\Verify\verify;
 
-class MustacheTest extends TestCase
+class EngineTest extends TestCase
 {
     use MockeryPHPUnitIntegration;
 
     public function testRender(): void
     {
-        $mustacheEngine = new Mustache(__DIR__ . '/../_data');
+        $mustacheEngine = new Engine(__DIR__ . '/../../_data');
         verify($mustacheEngine->render('{{> templates/template}}', ['variable' => 'custom variable']))
-            ->will()->contain('<h1>A Mustache Template with a custom variable</h1>');
+            ->will()->sameAs('<h1>A Mustache Template with a custom variable</h1>');
     }
 }
