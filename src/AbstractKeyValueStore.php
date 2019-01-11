@@ -10,7 +10,7 @@ namespace Magento\Upward;
 
 use Zend\Stdlib\ArrayUtils;
 
-abstract class AbstractKeyValueStore implements \JsonSerializable
+abstract class AbstractKeyValueStore implements \JsonSerializable, \Countable
 {
     /**
      * @var array
@@ -22,9 +22,6 @@ abstract class AbstractKeyValueStore implements \JsonSerializable
         $this->data = $data;
     }
 
-    /**
-     * Get the number of values.
-     */
     public function count(): int
     {
         return \count($this->data);
