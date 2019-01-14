@@ -8,6 +8,8 @@ declare(strict_types=1);
 
 namespace Magento\Upward;
 
+use Zend\Http\Response;
+
 class DefinitionIterator
 {
     /**
@@ -43,7 +45,8 @@ class DefinitionIterator
      */
     public function get($lookup, $definition = null)
     {
-        $updateContext = false;
+        $updateContext  = false;
+        $originalLookup = '';
 
         if ($this->isContextFullyPopulated($lookup)) {
             $value = $this->context->get($lookup);
@@ -56,18 +59,27 @@ class DefinitionIterator
         }
 
         if ($definition === null) {
-            if (!$this->getRootDefinition()->has($lookup)) {
-                throw new \RuntimeException(sprintf(
-                    'No definition for %s',
-                    \is_string($lookup) || is_numeric($lookup) ? $lookup : \gettype($lookup)
-                ));
-            }
-
             $definition    = $this->getRootDefinition();
             $updateContext = true;
         }
 
-        $definedValue = ($definition instanceof Definition) ? $definition->get($lookup) : $definition;
+        $definedValue = $definition;
+
+        if ($definition instanceof Definition) {
+            if (!$definition->has($lookup)) {
+                if ($parentLookup = $definition->getResolvableParent($lookup)) {
+                    $originalLookup = $lookup;
+                    $lookup         = $parentLookup;
+                } else {
+                    throw new \RuntimeException(sprintf(
+                        'No definition for %s',
+                        \is_string($lookup) || is_numeric($lookup) ? $lookup : \gettype($lookup)
+                    ));
+                }
+            }
+
+            $definedValue = $definedValue->get($lookup);
+        }
 
         // Expand $lookup to full tree address so we can safely detect loops across different parts of the tree
         if ($definedValue instanceof Definition) {
@@ -89,6 +101,18 @@ class DefinitionIterator
         }
 
         array_pop($this->lookupStack);
+
+        if (!empty($originalLookup)) {
+            if (\is_array($value)) {
+                $value = $this->get($originalLookup);
+            } elseif (!$value instanceof Response) {
+                throw new \RuntimeException(sprintf(
+                    'Could not get nested value %s from value of type %s',
+                    $originalLookup,
+                    \gettype($value)
+                ));
+            }
+        }
 
         return $value;
     }

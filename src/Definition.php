@@ -27,9 +27,9 @@ class Definition extends AbstractKeyValueStore
      *
      * {@inheritdoc}
      */
-    public function __construct(array $data)
+    public function __construct(array $data, ?string $basepath = null)
     {
-        $this->setBasepath(getcwd());
+        $this->setBasepath($basepath ?? getcwd());
 
         parent::__construct($data);
     }
@@ -47,8 +47,7 @@ class Definition extends AbstractKeyValueStore
             throw new \InvalidArgumentException("File ${filePath} could not be parsed as YAML.");
         }
 
-        $instance = new static($data);
-        $instance->setBasepath(\dirname($filePath));
+        $instance = new static($data, \dirname($filePath));
 
         return $instance;
     }
@@ -76,6 +75,28 @@ class Definition extends AbstractKeyValueStore
     public function getBasepath(): string
     {
         return $this->basepath;
+    }
+
+    public function getResolvableParent(string $lookup): ?string
+    {
+        $subArray = $this->data;
+
+        $parentSegments = [];
+
+        foreach (explode('.', $lookup) as $segment) {
+            if (\is_array($subArray)) {
+                if (array_key_exists($segment, $subArray)) {
+                    $subArray         = $subArray[$segment];
+                    $parentSegments[] = $segment;
+                } elseif (ResolverFactory::get(new static($subArray, $this->getBasepath()))) {
+                    return implode('.', $parentSegments);
+                }
+            } else {
+                return null;
+            }
+        }
+
+        return null;
     }
 
     /**
