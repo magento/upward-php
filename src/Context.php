@@ -33,6 +33,14 @@ class Context extends AbstractKeyValueStore
     ];
 
     /**
+     * Do not propogate value of $match value to clones.
+     */
+    public function __clone()
+    {
+        unset($this->data['$match']);
+    }
+
+    /**
      * Instantiate a Context from a Zend Http Request.
      */
     public static function fromRequest(Request $request): self

@@ -62,6 +62,12 @@ class AbstractKeyValueStoreTest extends TestCase
 
         verify($value11)->is()->instanceOf(AbstractKeyValueStore::class);
         verify($value11->get('key110'))->is()->sameAs('value 110');
+
+        $subject = $this->getSubject(['a', 'b', 'c']);
+
+        verify($subject->get(0))->is()->sameAs('a');
+        verify($subject->get('0'))->is()->sameAs('a');
+        verify($subject->get(''))->is()->null();
     }
 
     public function testGetKeys(): void
@@ -107,6 +113,31 @@ class AbstractKeyValueStoreTest extends TestCase
         verify($subject->has('key1.key11.key110'))->is()->true();
         verify($subject->has('key1.key11.key111'))->is()->true();
         verify($subject->has('key1.key11.key112'))->is()->false();
+    }
+
+    public function testIteratorFunction(): void
+    {
+        $subject = $this->getSubject(['a', 'b', 'c']);
+
+        $subject->rewind();
+
+        verify($subject->valid())->is()->true();
+        verify($subject->current())->is()->sameAs('a');
+
+        $subject->next();
+        verify($subject->valid())->is()->true();
+        verify($subject->current())->is()->sameAs('b');
+
+        $subject->next();
+        verify($subject->valid())->is()->true();
+        verify($subject->current())->is()->sameAs('c');
+
+        $subject->next();
+        verify($subject->valid())->is()->false();
+
+        $subject->rewind();
+        verify($subject->valid())->is()->true();
+        verify($subject->current())->is()->sameAs('a');
     }
 
     /**

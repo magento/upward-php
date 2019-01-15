@@ -32,6 +32,27 @@ class ContextTest extends TestCase
         ];
     }
 
+    public function testClone(): void
+    {
+        $original = new Context([
+            '$match' => [
+                '$0' => 'full match',
+                '$1' => 'match',
+            ],
+            'other' => 'value',
+        ]);
+
+        verify($original->has('$match'))->is()->true();
+        verify($original->has('other'))->is()->true();
+        verify($original->get('other'))->is()->sameAs('value');
+
+        $clone = clone $original;
+
+        verify($clone->has('$match'))->is()->false();
+        verify($clone->has('other'))->is()->true();
+        verify($clone->get('other'))->is()->sameAs('value');
+    }
+
     public function testFromRequest(): void
     {
         $request = Mockery::mock(Request::class);
