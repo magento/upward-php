@@ -33,7 +33,7 @@ class Context extends AbstractKeyValueStore
     ];
 
     /**
-     * Do not propogate value of $match value to clones.
+     * Do not propogate value of $match.
      */
     public function __clone()
     {

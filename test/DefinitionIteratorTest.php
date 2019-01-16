@@ -33,6 +33,7 @@ class DefinitionIteratorTest extends TestCase
 
         $clone = clone $original;
 
+        verify($clone->getContext())->is()->equalTo($context);
         verify($clone->getContext())->isNot()->sameAs($context);
         verify($clone->getRootDefinition())->is()->sameAs($definition);
     }
