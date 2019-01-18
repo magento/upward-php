@@ -27,9 +27,9 @@ class Definition extends AbstractKeyValueStore
      *
      * {@inheritdoc}
      */
-    public function __construct(array $data, ?string $basepath = null)
+    public function __construct(array $data)
     {
-        $this->setBasepath($basepath ?? getcwd());
+        $this->setBasepath(getcwd());
 
         parent::__construct($data);
     }
@@ -47,7 +47,8 @@ class Definition extends AbstractKeyValueStore
             throw new \InvalidArgumentException("File ${filePath} could not be parsed as YAML.");
         }
 
-        $instance = new static($data, \dirname($filePath));
+        $instance = new static($data);
+        $instance->setBasepath(\dirname($filePath));
 
         return $instance;
     }
