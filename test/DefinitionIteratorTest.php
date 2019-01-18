@@ -16,6 +16,7 @@ use Magento\Upward\ResolverFactory;
 use Mockery;
 use Mockery\Adapter\Phpunit\MockeryPHPUnitIntegration;
 use PHPUnit\Framework\TestCase;
+use Zend\Http\Response;
 use function BeBat\Verify\verify;
 
 class DefinitionIteratorTest extends TestCase
@@ -154,6 +155,83 @@ class DefinitionIteratorTest extends TestCase
         $iterator   = new DefinitionIterator($definition, $context);
 
         verify($iterator->get('key'))->is()->sameAs('context value');
+    }
+
+    public function testParentResolver(): void
+    {
+        $context         = new Context([]);
+        $definition      = new Definition(['key' => 'resolver-definition']);
+        $childDefinition = new Definition(['child-key' => '200']);
+        $iterator        = new DefinitionIterator($definition, $context);
+        $resolverFactory = Mockery::mock('alias:' . ResolverFactory::class);
+        $mockResolver    = Mockery::mock(ResolverInterface::class);
+
+        $resolverFactory->shouldReceive('get')
+            ->with('resolver-definition')
+            ->andReturn($mockResolver);
+
+        $mockResolver->shouldReceive('setIterator')
+            ->with($iterator);
+        $mockResolver->shouldReceive('isValid')
+            ->with($definition)
+            ->andReturn(true);
+        $mockResolver->shouldReceive('resolve')
+            ->with('resolver-definition')
+            ->andReturn($childDefinition);
+
+        verify($iterator->get('key.child-key'))->is()->sameAs('200');
+    }
+
+    public function testParentResolverIsNotArray(): void
+    {
+        $context         = new Context([]);
+        $definition      = new Definition(['key' => 'resolver-definition']);
+        $iterator        = new DefinitionIterator($definition, $context);
+        $resolverFactory = Mockery::mock('alias:' . ResolverFactory::class);
+        $mockResolver    = Mockery::mock(ResolverInterface::class);
+
+        $resolverFactory->shouldReceive('get')
+            ->with('resolver-definition')
+            ->andReturn($mockResolver);
+
+        $mockResolver->shouldReceive('setIterator')
+            ->with($iterator);
+        $mockResolver->shouldReceive('isValid')
+            ->with($definition)
+            ->andReturn(true);
+        $mockResolver->shouldReceive('resolve')
+            ->with('resolver-definition')
+            ->andReturn('200');
+
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('Could not get nested value key.child-key from value of type string');
+
+        $iterator->get('key.child-key');
+    }
+
+    public function testParentResolverIsResponse(): void
+    {
+        $context         = new Context([]);
+        $definition      = new Definition(['key' => 'resolver-definition']);
+        $response        = new Response();
+        $iterator        = new DefinitionIterator($definition, $context);
+        $resolverFactory = Mockery::mock('alias:' . ResolverFactory::class);
+        $mockResolver    = Mockery::mock(ResolverInterface::class);
+
+        $resolverFactory->shouldReceive('get')
+            ->with('resolver-definition')
+            ->andReturn($mockResolver);
+
+        $mockResolver->shouldReceive('setIterator')
+            ->with($iterator);
+        $mockResolver->shouldReceive('isValid')
+            ->with($definition)
+            ->andReturn(true);
+        $mockResolver->shouldReceive('resolve')
+            ->with('resolver-definition')
+            ->andReturn($response);
+
+        verify($iterator->get('key.child-key'))->is()->sameAs($response);
     }
 
     public function testResolverValueDefinition(): void

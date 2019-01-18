@@ -77,28 +77,6 @@ class Definition extends AbstractKeyValueStore
         return $this->basepath;
     }
 
-    public function getResolvableParent(string $lookup): ?string
-    {
-        $subArray = $this->data;
-
-        $parentSegments = [];
-
-        foreach (explode('.', $lookup) as $segment) {
-            if (\is_array($subArray)) {
-                if (array_key_exists($segment, $subArray)) {
-                    $subArray         = $subArray[$segment];
-                    $parentSegments[] = $segment;
-                } elseif (ResolverFactory::get(new static($subArray, $this->getBasepath()))) {
-                    return implode('.', $parentSegments);
-                }
-            } else {
-                return null;
-            }
-        }
-
-        return null;
-    }
-
     /**
      * Get a dot separated address of where this node belongs in the definition tree.
      */

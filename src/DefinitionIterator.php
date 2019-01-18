@@ -54,10 +54,6 @@ class DefinitionIterator
             return ($value instanceof Context) ? $value->toArray() : $value;
         }
 
-        if (\in_array($lookup, $this->lookupStack)) {
-            throw new \RuntimeException('Definition appears to contain a loop: ' . json_encode($this->lookupStack));
-        }
-
         if ($definition === null) {
             $definition    = $this->getRootDefinition();
             $updateContext = true;
@@ -67,7 +63,7 @@ class DefinitionIterator
 
         if ($definition instanceof Definition) {
             if (!$definition->has($lookup)) {
-                if ($parentLookup = $definition->getResolvableParent($lookup)) {
+                if ($parentLookup = $definition->getExistingParentLookup($lookup)) {
                     $originalLookup = $lookup;
                     $lookup         = $parentLookup;
                 } else {
@@ -84,6 +80,10 @@ class DefinitionIterator
         // Expand $lookup to full tree address so we can safely detect loops across different parts of the tree
         if ($definedValue instanceof Definition) {
             $lookup = $definedValue->getTreeAddress();
+        }
+
+        if (\in_array($lookup, $this->lookupStack)) {
+            throw new \RuntimeException('Definition appears to contain a loop: ' . json_encode($this->lookupStack));
         }
 
         $this->lookupStack[] = $lookup;
@@ -162,7 +162,7 @@ class DefinitionIterator
         }
 
         if ($definedValue instanceof Definition && $definedValue->isList()) {
-            return array_map(function ($key) use ($lookup) {
+            return array_map(function ($key) {
                 return $this->get($key);
             }, $definedValue->toArray());
         }
@@ -184,6 +184,7 @@ class DefinitionIterator
     private function getFromResolver(string $lookup, $definedValue, Resolver\ResolverInterface $resolver)
     {
         $resolver->setIterator($this);
+
         if ($definedValue instanceof Definition && !$resolver->isValid($definedValue)) {
             throw new \RuntimeException(sprintf(
                 'Definition %s is not valid for %s.',
