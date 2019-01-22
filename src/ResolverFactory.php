@@ -26,6 +26,7 @@ class ResolverFactory
         self::RESOLVER_TYPE_FILE      => Resolver\File::class,
         self::RESOLVER_TYPE_INLINE    => Resolver\Inline::class,
         self::RESOLVER_TYPE_PROXY     => Resolver\Proxy::class,
+        self::RESOLVER_TYPE_SERVICE   => Resolver\Service::class,
         self::RESOLVER_TYPE_TEMPLATE  => Resolver\Template::class,
     ];
 

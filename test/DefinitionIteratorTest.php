@@ -149,11 +149,13 @@ class DefinitionIteratorTest extends TestCase
 
     public function testLookupInContext(): void
     {
-        $context    = new Context(['key' => 'context value']);
-        $definition = new Definition([]);
-        $iterator   = new DefinitionIterator($definition, $context);
+        $context               = new Context(['key' => 'context value']);
+        $definition            = new Definition([]);
+        $iterator              = new DefinitionIterator($definition, $context);
+        $definitionWithSameKey = new Definition(['key' => true]);
 
         verify($iterator->get('key'))->is()->sameAs('context value');
+        verify($iterator->get('key', $definitionWithSameKey))->is()->sameAs(true);
     }
 
     public function testResolverValueDefinition(): void
