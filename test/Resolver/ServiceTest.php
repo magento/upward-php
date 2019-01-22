@@ -18,6 +18,9 @@ use Zend\Http\Client;
 use Zend\Http\Response;
 use function BeBat\Verify\verify;
 
+/**
+ * @runTestsInSeparateProcesses
+ */
 class ServiceTest extends TestCase
 {
     use MockeryPHPUnitIntegration;
