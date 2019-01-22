@@ -10,7 +10,7 @@ namespace Magento\Upward;
 
 use Zend\Stdlib\ArrayUtils;
 
-abstract class AbstractKeyValueStore implements \JsonSerializable, \Countable
+abstract class AbstractKeyValueStore implements \JsonSerializable, \Countable, \Iterator
 {
     /**
      * @var array
@@ -27,6 +27,11 @@ abstract class AbstractKeyValueStore implements \JsonSerializable, \Countable
         return \count($this->data);
     }
 
+    public function current()
+    {
+        return $this->get($this->key());
+    }
+
     /**
      * Get value for a key.
      *
@@ -38,13 +43,13 @@ abstract class AbstractKeyValueStore implements \JsonSerializable, \Countable
      */
     public function get($lookup)
     {
-        if (empty($lookup)) {
+        if (empty($lookup) && $lookup != 0) {
             return;
         }
 
         $value = $this->data;
 
-        foreach (explode('.', $lookup) as $segment) {
+        foreach (explode('.', (string) $lookup) as $segment) {
             if (\is_array($value) && array_key_exists($segment, $value)) {
                 $value = $value[$segment];
             } else {
@@ -97,7 +102,7 @@ abstract class AbstractKeyValueStore implements \JsonSerializable, \Countable
     {
         $subArray = $this->data;
 
-        foreach (explode('.', $lookup) as $segment) {
+        foreach (explode('.', (string) $lookup) as $segment) {
             if (\is_array($subArray) && array_key_exists($segment, $subArray)) {
                 $subArray = $subArray[$segment];
             } else {
@@ -124,6 +129,21 @@ abstract class AbstractKeyValueStore implements \JsonSerializable, \Countable
     public function jsonSerialize()
     {
         return $this->toArray();
+    }
+
+    public function key()
+    {
+        return key($this->data);
+    }
+
+    public function next(): void
+    {
+        next($this->data);
+    }
+
+    public function rewind(): void
+    {
+        reset($this->data);
     }
 
     /**
@@ -183,5 +203,10 @@ abstract class AbstractKeyValueStore implements \JsonSerializable, \Countable
     public function toArray(): array
     {
         return $this->data;
+    }
+
+    public function valid(): bool
+    {
+        return $this->key() !== null && $this->has($this->key());
     }
 }

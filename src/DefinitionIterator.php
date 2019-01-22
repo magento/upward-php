@@ -34,6 +34,14 @@ class DefinitionIterator
     }
 
     /**
+     * Make a copy of Context in clone.
+     */
+    public function __clone()
+    {
+        $this->context = clone $this->context;
+    }
+
+    /**
      * Travserse the Definition for a value, using a resolver if necessary.
      *
      * @param string|mixed           $lookup
@@ -48,7 +56,7 @@ class DefinitionIterator
         $updateContext  = false;
         $originalLookup = '';
 
-        if ($this->isContextFullyPopulated($lookup)) {
+        if ($definition === null && $this->isContextFullyPopulated($lookup)) {
             $value = $this->context->get($lookup);
 
             return ($value instanceof Context) ? $value->toArray() : $value;
@@ -115,6 +123,11 @@ class DefinitionIterator
         }
 
         return $value;
+    }
+
+    public function getContext(): Context
+    {
+        return $this->context;
     }
 
     public function getRootDefinition(): Definition

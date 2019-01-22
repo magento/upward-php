@@ -32,6 +32,25 @@ class ContextTest extends TestCase
         ];
     }
 
+    public function testClone(): void
+    {
+        $original = new Context([]);
+
+        $original->set('delete-me1', 'some value', false);
+        $original->set('delete-me2', 'some other value', false);
+        $original->set('keep-me', 'some permanent value');
+
+        verify($original->has('delete-me1'))->is()->true();
+        verify($original->has('delete-me2'))->is()->true();
+        verify($original->has('keep-me'))->is()->true();
+
+        $clone = clone $original;
+
+        verify($clone->has('delete-me1'))->is()->false();
+        verify($clone->has('delete-me2'))->is()->false();
+        verify($clone->has('keep-me'))->is()->true();
+    }
+
     public function testFromRequest(): void
     {
         $request = Mockery::mock(Request::class);
