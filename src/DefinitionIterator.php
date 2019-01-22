@@ -45,7 +45,7 @@ class DefinitionIterator
     {
         $updateContext = false;
 
-        if ($this->isContextFullyPopulated($lookup)) {
+        if ($definition === null && $this->isContextFullyPopulated($lookup)) {
             $value = $this->context->get($lookup);
 
             return ($value instanceof Context) ? $value->toArray() : $value;
