@@ -22,6 +22,22 @@ class DefinitionIteratorTest extends TestCase
 {
     use MockeryPHPUnitIntegration;
 
+    public function testClone(): void
+    {
+        $context    = new Context([]);
+        $definition = new Definition([]);
+        $original   = new DefinitionIterator($definition, $context);
+
+        verify($original->getContext())->is()->sameAs($context);
+        verify($original->getRootDefinition())->is()->sameAs($definition);
+
+        $clone = clone $original;
+
+        verify($clone->getContext())->is()->equalTo($context);
+        verify($clone->getContext())->isNot()->sameAs($context);
+        verify($clone->getRootDefinition())->is()->sameAs($definition);
+    }
+
     public function testDefinitionLoop(): void
     {
         $context    = new Context([]);

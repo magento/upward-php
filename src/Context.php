@@ -32,6 +32,19 @@ class Context extends AbstractKeyValueStore
         'hex',
     ];
 
+    /** @var string[] */
+    private $unsetOnClone = [];
+
+    /**
+     * Do not propagate non-cloneable keys.
+     */
+    public function __clone()
+    {
+        foreach ($this->unsetOnClone as $key) {
+            unset($this->data[$key]);
+        }
+    }
+
     /**
      * Instantiate a Context from a Zend Http Request.
      */
@@ -100,10 +113,14 @@ class Context extends AbstractKeyValueStore
      *
      * {@inheritdoc}
      */
-    public function set(string $lookup, $value): void
+    public function set(string $lookup, $value, bool $cloneable = true): void
     {
         if ($this->isBuiltinValue($lookup)) {
             throw new \RuntimeException('Cannot override a builtin value.');
+        }
+
+        if (!$cloneable) {
+            $this->unsetOnClone[] = $lookup;
         }
 
         parent::set($lookup, $value);
