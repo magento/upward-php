@@ -75,7 +75,7 @@ class Conditional extends AbstractResolver
 
                 // $matches is a temporary context value, so need a unique clone of Iterator & Context
                 $iterator = clone $this->getIterator();
-                $iterator->getContext()->set('$match', $matches);
+                $iterator->getContext()->set('$match', $matches, false);
 
                 return $iterator->get('use', $matcher);
             }

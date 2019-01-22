@@ -32,12 +32,17 @@ class Context extends AbstractKeyValueStore
         'hex',
     ];
 
+    /** @var string[] */
+    private $unsetOnClone = [];
+
     /**
-     * Do not propogate value of $match.
+     * Do not propagate non-cloneable keys.
      */
     public function __clone()
     {
-        unset($this->data['$match']);
+        foreach ($this->unsetOnClone as $key) {
+            unset($this->data[$key]);
+        }
     }
 
     /**
@@ -108,10 +113,14 @@ class Context extends AbstractKeyValueStore
      *
      * {@inheritdoc}
      */
-    public function set(string $lookup, $value): void
+    public function set(string $lookup, $value, bool $cloneable = true): void
     {
         if ($this->isBuiltinValue($lookup)) {
             throw new \RuntimeException('Cannot override a builtin value.');
+        }
+
+        if (!$cloneable) {
+            $this->unsetOnClone[] = $lookup;
         }
 
         parent::set($lookup, $value);
