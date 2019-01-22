@@ -61,6 +61,31 @@ abstract class AbstractKeyValueStore implements \JsonSerializable, \Countable, \
     }
 
     /**
+     * Find the longest portion of $lookup that exists.
+     */
+    public function getExistingParentLookup(string $lookup): string
+    {
+        $subArray = $this->data;
+
+        $parentSegments = [];
+
+        foreach (explode('.', $lookup) as $segment) {
+            if (\is_array($subArray)) {
+                if (array_key_exists($segment, $subArray)) {
+                    $subArray         = $subArray[$segment];
+                    $parentSegments[] = $segment;
+                } else {
+                    break;
+                }
+            } else {
+                break;
+            }
+        }
+
+        return implode('.', $parentSegments);
+    }
+
+    /**
      * List keys.
      */
     public function getKeys(): array

@@ -8,6 +8,8 @@ declare(strict_types=1);
 
 namespace Magento\Upward;
 
+use Zend\Http\Response;
+
 class DefinitionIterator
 {
     /**
@@ -51,7 +53,8 @@ class DefinitionIterator
      */
     public function get($lookup, $definition = null)
     {
-        $updateContext = false;
+        $updateContext  = false;
+        $originalLookup = '';
 
         if ($definition === null && $this->isContextFullyPopulated($lookup)) {
             $value = $this->context->get($lookup);
@@ -59,27 +62,36 @@ class DefinitionIterator
             return ($value instanceof Context) ? $value->toArray() : $value;
         }
 
-        if (\in_array($lookup, $this->lookupStack)) {
-            throw new \RuntimeException('Definition appears to contain a loop: ' . json_encode($this->lookupStack));
-        }
-
         if ($definition === null) {
-            if (!$this->getRootDefinition()->has($lookup)) {
-                throw new \RuntimeException(sprintf(
-                    'No definition for %s',
-                    \is_string($lookup) || is_numeric($lookup) ? $lookup : \gettype($lookup)
-                ));
-            }
-
             $definition    = $this->getRootDefinition();
             $updateContext = true;
         }
 
-        $definedValue = ($definition instanceof Definition) ? $definition->get($lookup) : $definition;
+        $definedValue = $definition;
+
+        if ($definition instanceof Definition) {
+            if (!$definition->has($lookup)) {
+                if ($parentLookup = $definition->getExistingParentLookup($lookup)) {
+                    $originalLookup = $lookup;
+                    $lookup         = $parentLookup;
+                } else {
+                    throw new \RuntimeException(sprintf(
+                        'No definition for %s',
+                        \is_string($lookup) || is_numeric($lookup) ? $lookup : \gettype($lookup)
+                    ));
+                }
+            }
+
+            $definedValue = $definedValue->get($lookup);
+        }
 
         // Expand $lookup to full tree address so we can safely detect loops across different parts of the tree
         if ($definedValue instanceof Definition) {
             $lookup = $definedValue->getTreeAddress();
+        }
+
+        if (\in_array($lookup, $this->lookupStack)) {
+            throw new \RuntimeException('Definition appears to contain a loop: ' . json_encode($this->lookupStack));
         }
 
         $this->lookupStack[] = $lookup;
@@ -97,6 +109,18 @@ class DefinitionIterator
         }
 
         array_pop($this->lookupStack);
+
+        if (!empty($originalLookup)) {
+            if (\is_array($value)) {
+                $value = $this->get($originalLookup);
+            } elseif (!$value instanceof Response) {
+                throw new \RuntimeException(sprintf(
+                    'Could not get nested value %s from value of type %s',
+                    $originalLookup,
+                    \gettype($value)
+                ));
+            }
+        }
 
         return $value;
     }
@@ -151,7 +175,7 @@ class DefinitionIterator
         }
 
         if ($definedValue instanceof Definition && $definedValue->isList()) {
-            return array_map(function ($key) use ($lookup) {
+            return array_map(function ($key) {
                 return $this->get($key);
             }, $definedValue->toArray());
         }
@@ -173,6 +197,7 @@ class DefinitionIterator
     private function getFromResolver(string $lookup, $definedValue, Resolver\ResolverInterface $resolver)
     {
         $resolver->setIterator($this);
+
         if ($definedValue instanceof Definition && !$resolver->isValid($definedValue)) {
             throw new \RuntimeException(sprintf(
                 'Definition %s is not valid for %s.',

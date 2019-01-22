@@ -70,6 +70,20 @@ class AbstractKeyValueStoreTest extends TestCase
         verify($subject->get(''))->is()->null();
     }
 
+    public function testGetExistingParentLookup(): void
+    {
+        $subject = $this->getSubject([
+            'key0' => [
+                'key00' => 'value',
+            ],
+        ]);
+
+        verify($subject->getExistingParentLookup('key0.key00'))->is()->sameAs('key0.key00');
+        verify($subject->getExistingParentLookup('key0.key00.key000'))->is()->sameAs('key0.key00');
+        verify($subject->getExistingParentLookup('key0.key01'))->is()->sameAs('key0');
+        verify($subject->getExistingParentLookup('key1'))->is()->sameAs('');
+    }
+
     public function testGetKeys(): void
     {
         $subject = $this->getSubject();
