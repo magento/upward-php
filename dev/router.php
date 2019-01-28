@@ -14,4 +14,4 @@ foreach ($response->getHeaders() as $header) {
     header($header->toString());
 }
 
-echo $response->getBody();
+echo $response->getContent();
