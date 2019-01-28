@@ -111,13 +111,7 @@ class TemplateTest extends TestCase
             'engine'   => 'mustache',
             'template' => 'My Template',
             'provide'  => [
-                'resolver' => 'inline',
-                'inline'   => [
-                    'inlineKey' => [
-                        'resolver' => 'inline',
-                        'inline'   => 'inlineValue',
-                    ],
-                ],
+                'inlineKey' => 'some.lookup',
             ],
         ]);
 
@@ -130,6 +124,12 @@ class TemplateTest extends TestCase
         $this->definitionIteratorMock->shouldReceive('get')
             ->with('provide', $definition)
             ->andReturn(['inlineKey' => 'inlineValue']);
+        $this->definitionIteratorMock->shouldReceive('get')
+            ->with('some.lookup')
+            ->andReturn('inlineValue');
+
+        $this->definitionIteratorMock->shouldReceive('getRootDefinition')
+            ->andReturn($definition);
 
         $templateFactoryMock->shouldReceive('get')
             ->with($definition->getBasepath(), 'mustache')
@@ -161,8 +161,11 @@ class TemplateTest extends TestCase
             ->with('template', $definition)
             ->andReturn($definition->get('template'));
         $this->definitionIteratorMock->shouldReceive('get')
-            ->with('provide', $definition)
-            ->andReturn(['resolvedRootValue']);
+            ->with('rootValue')
+            ->andReturn('resolvedRootValue');
+
+        $this->definitionIteratorMock->shouldReceive('getRootDefinition')
+            ->andReturn($definition);
 
         $templateFactoryMock->shouldReceive('get')
             ->with($definition->getBasepath(), null)

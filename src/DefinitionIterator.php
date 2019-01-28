@@ -85,16 +85,14 @@ class DefinitionIterator
             $definedValue = $definedValue->get($lookup);
         }
 
-        // Expand $lookup to full tree address so we can safely detect loops across different parts of the tree
-        if ($definedValue instanceof Definition) {
-            $lookup = $definedValue->getTreeAddress();
+        $fullLookup = empty($definition->getTreeAddress()) ? $lookup : $definition->getTreeAddress() . '.' . $lookup;
+
+        if (\in_array($fullLookup, $this->lookupStack)) {
+            $stack = array_merge($this->lookupStack, [$lookup]);
+            throw new \RuntimeException('Definition appears to contain a loop: ' . json_encode($stack));
         }
 
-        if (\in_array($lookup, $this->lookupStack)) {
-            throw new \RuntimeException('Definition appears to contain a loop: ' . json_encode($this->lookupStack));
-        }
-
-        $this->lookupStack[] = $lookup;
+        $this->lookupStack[] = $fullLookup;
 
         try {
             $value = $this->getFromDefinedValue($lookup, $definedValue);

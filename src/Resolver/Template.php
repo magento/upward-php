@@ -50,13 +50,18 @@ class Template extends AbstractResolver
     {
         $engineName     = $definition->has('engine') ? $this->getIterator()->get('engine', $definition) : null;
         $templateString = $this->getIterator()->get('template', $definition);
-        $renderData     = $this->getIterator()->get('provide', $definition);
+        $renderData     = [];
 
-        if ($definition->get('provide')->isList()) {
-            $renderData = array_combine($definition->get('provide')->toArray(), $renderData);
+        if ($definition->has('provide')) {
+            foreach ($definition->get('provide') as $index => $definition) {
+                $key              = \is_int($index) ? $definition : $index;
+                $renderData[$key] = $definition instanceof Definition
+                    ? $this->getIterator()->get('provide.' . $index)
+                    : $this->getIterator()->get($definition);
+            }
         }
 
-        $engine = TemplateFactory::get($definition->getBasepath(), $engineName);
+        $engine = TemplateFactory::get($this->getIterator()->getRootDefinition()->getBasepath(), $engineName);
 
         return $engine->render($templateString, $renderData);
     }

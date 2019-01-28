@@ -60,6 +60,7 @@ class Proxy extends AbstractResolver
         $client = new Client(null, [
             'adapter'     => Client\Adapter\Curl::class,
             'curloptions' => [
+                CURLOPT_SSL_VERIFYHOST => $ignoreSSLErrors ? 0 : 2,
                 CURLOPT_SSL_VERIFYPEER => !$ignoreSSLErrors,
             ],
         ]);

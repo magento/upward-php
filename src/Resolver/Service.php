@@ -49,24 +49,41 @@ class Service extends AbstractResolver
             throw new \InvalidArgumentException('$definition must be an instance of ' . Definition::class);
         }
 
-        $url           = $this->getIterator()->get('url', $definition);
-        $query         = $this->getIterator()->get('query', $definition);
-        $method        = $definition->has('method') ? $this->getIterator()->get('method', $definition) : 'POST';
-        $headers       = $definition->has('headers') ? $this->getIterator()->get('headers', $definition) : [];
-        $variables     = $definition->has('variables') ? $this->getIterator()->get('variables', $definition) : [];
+        $url             = $this->getIterator()->get('url', $definition);
+        $query           = $this->getIterator()->get('query', $definition);
+        $method          = $definition->has('method') ? $this->getIterator()->get('method', $definition) : 'POST';
+        $variables       = $definition->has('variables') ? $this->getIterator()->get('variables', $definition) : [];
+        $ignoreSSLErrors = $definition->has('ignoreSSLErrors')
+            ? $this->getIterator()->get('ignoreSSLErrors', $definition)
+            : false;
         $requestParams = [
             'query'     => $query,
             'variables' => $variables,
         ];
 
-        $client = new Client($url);
+        $client = new Client($url, [
+            'adapter'     => Client\Adapter\Curl::class,
+            'curloptions' => [
+                CURLOPT_SSL_VERIFYHOST => $ignoreSSLErrors ? 0 : 2,
+                CURLOPT_SSL_VERIFYPEER => !$ignoreSSLErrors,
+            ],
+        ]);
+
         $client->setMethod($method);
-        $client->setHeaders($headers);
+
         if ($method === 'POST') {
+            $headers = $definition->has('headers')
+                ? array_merge(['Content-type' => 'application/json'], $this->getIterator()->get('headers', $definition))
+                : ['Content-type' => 'application/json'];
+
             $client->setRawBody(json_encode($requestParams));
         } elseif ($method === 'GET') {
+            $headers = $definition->has('headers') ? $this->getIterator()->get('headers', $definition) : [];
+
             $client->setParameterGet($requestParams);
         }
+
+        $client->setHeaders($headers);
 
         $response = $client->send();
 

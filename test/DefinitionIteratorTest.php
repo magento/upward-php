@@ -93,7 +93,7 @@ class DefinitionIteratorTest extends TestCase
         // Key has been added to context
         verify($context->get('key'))->is()->true();
 
-        verify($iterator->get('child-key', false))->is()->false();
+        verify($iterator->get('child-key', new Definition(['child-key' => false])))->is()->false();
 
         // Key was not added to context
         verify($context->has('child-key'))->is()->false();
@@ -157,7 +157,7 @@ class DefinitionIteratorTest extends TestCase
         verify($context->get('key2'))->is()->true();
 
         // Child definition is an address for a value in the root definition
-        verify($iterator->get('key3', 'key4'))->is()->false();
+        verify($iterator->get('key3', new Definition(['key3' => 'key4'])))->is()->false();
 
         // Only value from root definition is added to context
         verify($context->has('key3'))->is()->false();
