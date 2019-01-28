@@ -85,14 +85,14 @@ class DefinitionIterator
             $definedValue = $definedValue->get($lookup);
         }
 
-        if (\in_array($lookup, $this->lookupStack)) {
+        $fullLookup = empty($definition->getTreeAddress()) ? $lookup : $definition->getTreeAddress() . '.' . $lookup;
+
+        if (\in_array($fullLookup, $this->lookupStack)) {
             $stack = array_merge($this->lookupStack, [$lookup]);
             throw new \RuntimeException('Definition appears to contain a loop: ' . json_encode($stack));
         }
 
-        $this->lookupStack[] = empty($definition->getTreeAddress())
-            ? $lookup
-            : $definition->getTreeAddress() . '.' . $lookup;
+        $this->lookupStack[] = $fullLookup;
 
         try {
             $value = $this->getFromDefinedValue($lookup, $definedValue);
