@@ -133,7 +133,7 @@ class ServiceTest extends TestCase
         $zendClientMock = Mockery::mock('overload:' . Client::class);
         $zendClientMock->shouldReceive('setMethod')->with('GET');
         $zendClientMock->shouldReceive('setHeaders')
-            ->with(['Content-type' => 'application/json', 'header' => 'headerValue']);
+            ->with(['header' => 'headerValue']);
         $zendClientMock->shouldReceive('setParameterGet')->with($expectedRequestBody);
         $zendClientMock->shouldReceive('send')->andReturn($responseMock);
 

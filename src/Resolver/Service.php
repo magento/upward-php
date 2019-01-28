@@ -49,8 +49,6 @@ class Service extends AbstractResolver
             throw new \InvalidArgumentException('$definition must be an instance of ' . Definition::class);
         }
 
-        $headers = ['Content-type' => 'application/json'];
-
         $url             = $this->getIterator()->get('url', $definition);
         $query           = $this->getIterator()->get('query', $definition);
         $method          = $definition->has('method') ? $this->getIterator()->get('method', $definition) : 'POST';
@@ -58,9 +56,6 @@ class Service extends AbstractResolver
         $ignoreSSLErrors = $definition->has('ignoreSSLErrors')
             ? $this->getIterator()->get('ignoreSSLErrors', $definition)
             : false;
-        $headers = $definition->has('headers')
-            ? array_merge($headers, $this->getIterator()->get('headers', $definition))
-            : $headers;
         $requestParams = [
             'query'     => $query,
             'variables' => $variables,
@@ -73,13 +68,22 @@ class Service extends AbstractResolver
                 CURLOPT_SSL_VERIFYPEER => !$ignoreSSLErrors,
             ],
         ]);
+
         $client->setMethod($method);
-        $client->setHeaders($headers);
+
         if ($method === 'POST') {
+            $headers = $definition->has('headers')
+                ? array_merge(['Content-type' => 'application/json'], $this->getIterator()->get('headers', $definition))
+                : ['Content-type' => 'application/json'];
+
             $client->setRawBody(json_encode($requestParams));
         } elseif ($method === 'GET') {
+            $headers = $definition->has('headers') ? $this->getIterator()->get('headers', $definition) : [];
+
             $client->setParameterGet($requestParams);
         }
+
+        $client->setHeaders($headers);
 
         $response = $client->send();
 
