@@ -9,6 +9,7 @@ declare(strict_types=1);
 namespace Magento\Upward\Resolver;
 
 use Magento\Upward\Definition;
+use Mimey\MimeTypes;
 use Zend\Http\Header\ContentType;
 use Zend\Http\Response;
 use Zend\Http\Response\Stream;
@@ -53,8 +54,7 @@ class Directory extends AbstractResolver
             throw new \InvalidArgumentException('$definition must be an instance of ' . Definition::class);
         }
 
-        $directory = $this->getIterator()->get('directory', $definition);
-
+        $directory  = $this->getIterator()->get('directory', $definition);
         $response   = new Stream();
         $upwardRoot = $this->getIterator()->getRootDefinition()->getBasepath();
         $root       = realpath($upwardRoot . \DIRECTORY_SEPARATOR . $directory);
@@ -64,8 +64,10 @@ class Directory extends AbstractResolver
         if (!$path || strpos($path, $root) !== 0 || !is_file($path)) {
             $response->setStatusCode(Response::STATUS_CODE_404);
         } else {
+            $mimeType = (new MimeTypes())->getMimeType(pathinfo($path, PATHINFO_EXTENSION));
+
             $response->setStream(fopen($path, 'r'));
-            $response->getHeaders()->addHeader(new ContentType(mime_content_type($path)));
+            $response->getHeaders()->addHeader(new ContentType($mimeType));
         }
 
         return $response;

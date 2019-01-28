@@ -5,8 +5,8 @@
     "license": "OSL-3.0",
     "require": {
         "php": ">= 7.1",
-        "guzzlehttp/guzzle": "^6.2",
         "mustache/mustache": "^2.12",
+        "ralouphie/mimey": "^2.0",
         "symfony/yaml": "^2.3||^3.3",
         "zendframework/zend-http": "^2.6",
         "zendframework/zend-stdlib": "^2.7"
@@ -22,6 +22,9 @@
         {
             "name": "Ben Batschelet",
             "email": "batschel@adobe.com"
+        }, {
+            "name": "Tommy Wiebell",
+            "email": "twiebell@adobe.com"
         }
     ],
     "autoload": {
