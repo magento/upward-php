@@ -7,11 +7,16 @@
 declare(strict_types=1);
 
 $controller = require __DIR__ . '/bootstrap-controller.php';
-$response   = $controller();
+/** @var \Zend\Http\Response $response */
+$response = $controller();
 
 header($response->renderStatusLine());
 foreach ($response->getHeaders() as $header) {
     header($header->toString());
 }
 
-echo $response->getContent();
+if ($response instanceof \Zend\Http\Response\Stream) {
+    echo $response->getBody();
+} else {
+    echo $response->getContent();
+}

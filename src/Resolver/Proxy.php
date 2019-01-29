@@ -49,7 +49,7 @@ class Proxy extends AbstractResolver
         $ignoreSSLErrors = $definition->has('ignoreSSLErrors')
             ? $this->getIterator()->get('ignoreSSLErrors', $definition)
             : false;
-        $request = new \Zend\Http\PhpEnvironment\Request();
+        $request            = new \Zend\Http\PhpEnvironment\Request();
         $originalRequestURI = clone $request->getUri();
         $request->setUri($target);
         $request->getUri()->setPath($originalRequestURI->getPath())->setQuery($originalRequestURI->getQuery());
