@@ -81,6 +81,16 @@ class File extends AbstractResolver
             $path = realpath($this->getIterator()->getRootDefinition()->getBasepath() . \DIRECTORY_SEPARATOR . $path);
         }
 
-        return file_get_contents($path);
+        $content = file_get_contents($path);
+
+        if (pathinfo($path, PATHINFO_EXTENSION) == 'json') {
+            $content = json_decode($content, true);
+
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                throw new \RuntimeException('Failed to parse ' . basename($path) . ': ' . json_last_error_msg());
+            }
+        }
+
+        return $content;
     }
 }

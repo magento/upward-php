@@ -42,6 +42,9 @@ class FileTest extends TestCase
             ->andReturnUsing(function (string $key, Definition $definition) {
                 return $definition->get($key);
             });
+
+        $this->mockIterator->shouldReceive('getRootDefinition->getBasePath')
+            ->andReturn(__DIR__);
     }
 
     public function testIndicator(): void
@@ -86,14 +89,25 @@ class FileTest extends TestCase
         verify($this->resolver->isValid($invalidParse))->is()->false();
     }
 
+    public function testJsonException(): void
+    {
+        $this->expectException(\RuntimeException::class);
+        // Omit portion of the error message that comes from buitlin PHP value
+        $this->expectExceptionMessage('Failed to parse invalid.json: ');
+
+        $this->resolver->resolve('./_data/invalid.json');
+    }
+
     public function testResolve(): void
     {
         $definition = new Definition(['file' => './_data/sample.txt']);
 
-        $this->mockIterator->shouldReceive('getRootDefinition->getBasePath')
-            ->andReturn(__DIR__);
-
         verify($this->resolver->resolve('./_data/sample.txt'))->is()->sameAs("This is a sample file.\n");
         verify($this->resolver->resolve($definition))->is()->sameAs("This is a sample file.\n");
+    }
+
+    public function testResolveJson(): void
+    {
+        verify($this->resolver->resolve('./_data/sample.json'))->is()->sameAs(['json' => true]);
     }
 }
