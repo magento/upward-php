@@ -83,7 +83,7 @@ class File extends AbstractResolver
 
         $content = file_get_contents($path);
 
-        if (pathinfo($path, PATHINFO_EXTENSION) == 'json') {
+        if ($parse == 'auto' && pathinfo($path, PATHINFO_EXTENSION) == 'json') {
             $content = json_decode($content, true);
 
             if (json_last_error() !== JSON_ERROR_NONE) {

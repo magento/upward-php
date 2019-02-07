@@ -110,4 +110,11 @@ class FileTest extends TestCase
     {
         verify($this->resolver->resolve('./_data/sample.json'))->is()->sameAs(['json' => true]);
     }
+
+    public function testyResolveWithoutParse(): void
+    {
+        $definition = new Definition(['file' => './_data/sample.json', 'parse' => 'text']);
+
+        verify($this->resolver->resolve($definition))->is()->sameAs('{"json": true}' . PHP_EOL);
+    }
 }
