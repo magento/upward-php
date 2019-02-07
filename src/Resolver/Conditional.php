@@ -64,9 +64,14 @@ class Conditional extends AbstractResolver
         }
 
         foreach ($definition->get($this->getIndicator()) as $matcher) {
-            $rawValue = $this->getIterator()->get($matcher->get('matches'));
-            $value    = is_scalar($rawValue) ? (string) $rawValue : json_encode($rawValue);
-            $pattern  = '/' . addcslashes($matcher->get('pattern'), '/') . '/';
+            try {
+                $rawValue = $this->getIterator()->get($matcher->get('matches'));
+            } catch (\Exception $exception) {
+                // exceptions thrown for match value lookups should silently fail and fall through
+                continue;
+            }
+            $value   = is_scalar($rawValue) ? (string) $rawValue : json_encode($rawValue);
+            $pattern = '/' . addcslashes($matcher->get('pattern'), '/') . '/';
 
             if (preg_match($pattern, $value, $matches)) {
                 // preface each key with '$'

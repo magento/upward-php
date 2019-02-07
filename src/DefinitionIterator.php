@@ -42,14 +42,15 @@ class DefinitionIterator
     }
 
     /**
-     * Travserse the Definition for a value, using a resolver if necessary.
+     * Traverse the Definition for a value, using a resolver if necessary.
      *
      * @param string|mixed           $lookup
      * @param Definition|string|null $definition Definition to iterate rather than root definition
      *
-     * @throws RuntimeException if iterator is already attempting to resolve $lookup
-     *                          (ie, definition appears to contain a loop)
-     * @throws RuntimeException if $lookup does not exist in definition
+     * @throws \RuntimeException if iterator is already attempting to resolve $lookup
+     *                           (ie, definition appears to contain a loop)
+     * @throws \RuntimeException if $lookup does not exist in definition
+     * @throws \Exception        if lookup is undefined in the context
      */
     public function get($lookup, $definition = null)
     {
