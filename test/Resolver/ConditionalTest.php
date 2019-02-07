@@ -134,6 +134,37 @@ class ConditionalTest extends TestCase
         verify($this->resolver->isShortHand('anything'))->is()->false();
     }
 
+    public function testMatchExceptionFallsThrough(): void
+    {
+        $definition = new Definition([
+            'when' => [[
+                'matches' => 'key for undefined value',
+                'pattern' => '[a-zA-Z]+',
+                'use'     => 'some missing resolver',
+            ], [
+                'matches' => 'key for alpha value',
+                'pattern' => '[0-9]+',
+                'use'     => 'another missing resolver',
+            ]],
+            'default' => 'expected resolver',
+        ]);
+
+        $iterator = Mockery::mock(DefinitionIterator::class);
+        $this->resolver->setIterator($iterator);
+
+        $iterator->shouldReceive('get')
+            ->with('key for undefined value')
+            ->andThrow(new \Exception('Undefined value in context'));
+        $iterator->shouldReceive('get')
+            ->with('key for alpha value')
+            ->andReturn('abcdefgHIJKLMNOP');
+        $iterator->shouldReceive('get')
+            ->with('default', $definition)
+            ->andReturn('value for default resolver');
+
+        verify($this->resolver->resolve($definition))->is()->sameAs('value for default resolver');
+    }
+
     public function testResolveThrowsException(): void
     {
         $this->expectException(\InvalidArgumentException::class);
