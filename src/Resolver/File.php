@@ -13,6 +13,16 @@ use Magento\Upward\Definition;
 class File extends AbstractResolver
 {
     /**
+     * Possible values for encoding.
+     */
+    public const VALID_ENCODING_VALUES = ['utf-8', 'latin-1', 'binary'];
+
+    /**
+     * Possible values for parse.
+     */
+    public const VALID_PARSE_VALUES = ['auto', 'text', 'json', 'mustache', 'graphql'];
+
+    /**
      * {@inheritdoc}
      */
     public function getIndicator(): string
@@ -40,7 +50,7 @@ class File extends AbstractResolver
         if ($definition->has('encoding')) {
             $encoding = $this->getIterator()->get('encoding', $definition);
 
-            if (!\in_array(strtolower($encoding), ['utf-8', 'latin-1', 'binary'])) {
+            if (!\in_array(strtolower($encoding), self::VALID_ENCODING_VALUES)) {
                 return false;
             }
         }
@@ -48,7 +58,7 @@ class File extends AbstractResolver
         if ($definition->has('parse')) {
             $parse = $this->getIterator()->get('parse', $definition);
 
-            if (!\in_array(strtolower($parse), ['auto', 'text'])) {
+            if (!\in_array(strtolower($parse), self::VALID_PARSE_VALUES)) {
                 return false;
             }
         }
@@ -81,6 +91,16 @@ class File extends AbstractResolver
             $path = realpath($this->getIterator()->getRootDefinition()->getBasepath() . \DIRECTORY_SEPARATOR . $path);
         }
 
-        return file_get_contents($path);
+        $content = file_get_contents($path);
+
+        if (($parse == 'auto' && pathinfo($path, PATHINFO_EXTENSION) == 'json') || $parse == 'json') {
+            $content = json_decode($content, true);
+
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                throw new \RuntimeException('Failed to parse ' . basename($path) . ': ' . json_last_error_msg());
+            }
+        }
+
+        return $content;
     }
 }
