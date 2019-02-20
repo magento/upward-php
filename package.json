@@ -8,6 +8,6 @@
     "test:spec": "upward-spec ./test-spec.sh"
   },
   "devDependencies": {
-    "@magento/upward-spec": "^2.0.0-rc.18"
+    "@magento/upward-spec": "^2.0.0"
   }
 }
