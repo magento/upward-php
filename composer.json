@@ -1,5 +1,5 @@
 {
-    "name": "magento/upward",
+    "name": "magento/upward-server",
     "description": "UPWARD parser and server",
     "type": "library",
     "license": "OSL-3.0",
