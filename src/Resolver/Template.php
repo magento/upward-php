@@ -53,11 +53,11 @@ class Template extends AbstractResolver
         $renderData     = [];
 
         if ($definition->has('provide')) {
-            foreach ($definition->get('provide') as $index => $definition) {
-                $key              = \is_int($index) ? $definition : $index;
-                $renderData[$key] = $definition instanceof Definition
+            foreach ($definition->get('provide') as $index => $provideDefinition) {
+                $key              = \is_int($index) ? $provideDefinition : $index;
+                $renderData[$key] = $provideDefinition instanceof Definition
                     ? $this->getIterator()->get('provide.' . $index)
-                    : $this->getIterator()->get($definition);
+                    : $this->getIterator()->get($provideDefinition);
             }
         }
 
