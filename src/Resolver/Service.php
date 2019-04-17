@@ -13,12 +13,22 @@ use Zend\Http\Client;
 
 class Service extends AbstractResolver
 {
+    public const DEPRECATED_URL_INDICATOR = 'url';
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getDeprecatedIndicators()
+    {
+        return [self::DEPRECATED_URL_INDICATOR];
+    }
+
     /**
      * {@inheritdoc}
      */
     public function getIndicator(): string
     {
-        return 'url';
+        return 'endpoint';
     }
 
     /**
@@ -37,7 +47,7 @@ class Service extends AbstractResolver
             }
         }
 
-        return parent::isValid($definition);
+        return $definition->has($this->getIndicator()) xor $definition->has(self::DEPRECATED_URL_INDICATOR);
     }
 
     /**
@@ -49,7 +59,11 @@ class Service extends AbstractResolver
             throw new \InvalidArgumentException('$definition must be an instance of ' . Definition::class);
         }
 
-        $url             = $this->getIterator()->get('url', $definition);
+        $urlParameter = $definition->has($this->getIndicator())
+            ? $this->getIndicator()
+            : self::DEPRECATED_URL_INDICATOR;
+
+        $url             = $this->getIterator()->get($urlParameter, $definition);
         $query           = $this->getIterator()->get('query', $definition);
         $method          = $definition->has('method') ? $this->getIterator()->get('method', $definition) : 'POST';
         $variables       = $definition->has('variables') ? $this->getIterator()->get('variables', $definition) : [];

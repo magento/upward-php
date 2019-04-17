@@ -42,18 +42,31 @@ class ServiceTest extends TestCase
         $this->resolver->setIterator($this->definitionIteratorMock);
     }
 
-    public function testIndicator(): void
+    /**
+     * Data provider to verify backwards compatibility with previous indicator.
+     *
+     * @return string[]
+     */
+    public function indicatorDataProvider()
     {
-        verify($this->resolver->getIndicator())->is()->sameAs('url');
+        return [['url'], ['endpoint']];
     }
 
-    public function testIsValid(): void
+    public function testIndicator(): void
     {
-        $validDefinition           = new Definition(['url' => '/graphql', 'query' => 'gql']);
-        $validWithMethodDefinition = new Definition(['url' => '/graphql', 'query' => 'gql', 'method' => 'GET']);
+        verify($this->resolver->getIndicator())->is()->sameAs('endpoint');
+    }
+
+    /**
+     * @dataProvider indicatorDataProvider
+     */
+    public function testIsValid(string $indicator): void
+    {
+        $validDefinition           = new Definition([$indicator => '/graphql', 'query' => 'gql']);
+        $validWithMethodDefinition = new Definition([$indicator => '/graphql', 'query' => 'gql', 'method' => 'GET']);
         $invalidNoURL              = new Definition(['query' => 'gql']);
-        $invalidNoQuery            = new Definition(['url' => '/graphql']);
-        $invalidUnsupportedMethod  = new Definition(['url' => '/graphql', 'query' => 'gql', 'method' => 'PUT']);
+        $invalidNoQuery            = new Definition([$indicator => '/graphql']);
+        $invalidUnsupportedMethod  = new Definition([$indicator => '/graphql', 'query' => 'gql', 'method' => 'PUT']);
 
         $this->definitionIteratorMock->shouldReceive('get')
             ->twice()
@@ -69,9 +82,12 @@ class ServiceTest extends TestCase
         verify($this->resolver->isValid($invalidUnsupportedMethod))->is()->false();
     }
 
-    public function testResolve(): void
+    /**
+     * @dataProvider indicatorDataProvider
+     */
+    public function testResolve(string $indicator): void
     {
-        $definition            = new Definition(['url' => '/graphql', 'query' => 'gql']);
+        $definition            = new Definition([$indicator => '/graphql', 'query' => 'gql']);
         $expectedRequestBody   = json_encode(['query' => 'gql', 'variables' => []]);
         $expectedResponseArray = ['data' => ['key' => 'value']];
 
@@ -102,10 +118,13 @@ class ServiceTest extends TestCase
         $this->resolver->resolve('Not a Definition');
     }
 
-    public function testResolveWithConfiguration(): void
+    /**
+     * @dataProvider indicatorDataProvider
+     */
+    public function testResolveWithConfiguration(string $indicator): void
     {
         $definition = new Definition([
-            'url'       => '/graphql',
+            $indicator  => '/graphql',
             'query'     => 'gql',
             'variables' => [
                 'var1' => 'var1Value',

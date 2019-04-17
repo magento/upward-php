@@ -13,8 +13,9 @@ use Zend\Uri\UriFactory;
 
 class Url extends AbstractResolver
 {
-    public const FAKE_BASE_HOST = 'upward-fake.localhost';
-    public const FAKE_BASE_URL  = 'https://' . self::FAKE_BASE_HOST;
+    public const FAKE_BASE_HOST     = 'upward-fake.localhost';
+    public const FAKE_BASE_URL      = 'https://' . self::FAKE_BASE_HOST;
+    public const NON_RELATIVE_PARTS = ['protocol', 'port', 'username', 'password'];
 
     /**
      * {@inheritdoc}
@@ -33,6 +34,18 @@ class Url extends AbstractResolver
             $query = $this->getIterator()->get('query', $definition);
             if (!\is_array($query)) {
                 return false;
+            }
+        }
+
+        if ($definition->has('password') && !$definition->has('username')) {
+            return false;
+        }
+
+        if ($this->getIterator()->get('baseUrl', $definition) === false && !$definition->has('hostname')) {
+            foreach (self::NON_RELATIVE_PARTS as $nonRelativePart) {
+                if ($definition->has($nonRelativePart)) {
+                    return false;
+                }
             }
         }
 
@@ -78,6 +91,11 @@ class Url extends AbstractResolver
             $uri->setPath($pathname);
         }
 
+        if ($definition->has('search')) {
+            parse_str($this->getIterator()->get('search', $definition), $searchArray);
+            $uri->setQuery(array_merge($uri->getQueryAsArray(), $searchArray));
+        }
+
         if ($definition->has('query')) {
             $mergedQuery = array_merge($uri->getQueryAsArray(), $this->getIterator()->get('query', $definition));
             $uri->setQuery($mergedQuery);
@@ -93,6 +111,10 @@ class Url extends AbstractResolver
                 $userInfo .= ':' . $this->getIterator()->get('password', $definition);
             }
             $uri->setUserInfo($userInfo);
+        }
+
+        if ($definition->has('hash')) {
+            $uri->setFragment(str_replace('#', '', $this->getIterator()->get('hash', $definition)));
         }
 
         $returnUrl = $uri->toString();
