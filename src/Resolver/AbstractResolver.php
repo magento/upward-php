@@ -19,6 +19,19 @@ abstract class AbstractResolver implements ResolverInterface
     protected $iterator;
 
     /**
+     * Return list of previous indicators.
+     *
+     * Given that the UPWARD specification is a living document, it's possible that indicators may change, but
+     * to maintain backward compatibility we should still support those past indicators.
+     *
+     * @return string[]
+     */
+    public function getDeprecatedIndicators()
+    {
+        return [];
+    }
+
+    /**
      * {@inheritdoc}
      */
     abstract public function getIndicator(): string;

@@ -17,6 +17,7 @@ class ResolverFactory
     public const RESOLVER_TYPE_PROXY       = 'proxy';
     public const RESOLVER_TYPE_SERVICE     = 'service';
     public const RESOLVER_TYPE_TEMPLATE    = 'template';
+    public const RESOLVER_TYPE_URL         = 'url';
 
     /**
      * @var array map of resolver key to their class implementation
@@ -29,6 +30,7 @@ class ResolverFactory
         self::RESOLVER_TYPE_PROXY       => Resolver\Proxy::class,
         self::RESOLVER_TYPE_SERVICE     => Resolver\Service::class,
         self::RESOLVER_TYPE_TEMPLATE    => Resolver\Template::class,
+        self::RESOLVER_TYPE_URL         => Resolver\Url::class,
     ];
 
     /**
@@ -66,7 +68,7 @@ class ResolverFactory
      * Return a resolver from instance cache by its type,
      * otherwise instantiate one based on its type and cache it.
      *
-     * @throws RuntimeException if there is no cached instance or configured class for $resolverType
+     * @throws \RuntimeException if there is no cached instance or configured class for $resolverType
      */
     private static function build(string $resolverType): Resolver\ResolverInterface
     {
@@ -84,7 +86,7 @@ class ResolverFactory
     /**
      * Get a Resolver for a Definition.
      *
-     * @throws RuntimeException if $definition is not valid for the Resolver
+     * @throws \RuntimeException if $definition is not valid for the Resolver
      */
     private static function getForDefinition(Definition $definition): Resolver\ResolverInterface
     {
@@ -112,7 +114,7 @@ class ResolverFactory
     /**
      * Return a resolver for a Definition based on if that Definition has the resolver's indicator.
      *
-     * @throw RuntimeException if no resolver can be inferred.
+     * @throws \RuntimeException if no resolver can be inferred
      */
     private static function inferResolver(Definition $definition): Resolver\ResolverInterface
     {
@@ -121,6 +123,14 @@ class ResolverFactory
 
             if ($definition->has($resolver->getIndicator())) {
                 return $resolver;
+            }
+
+            if ($resolver instanceof Resolver\AbstractResolver) {
+                foreach ($resolver->getDeprecatedIndicators() as $deprecatedIndicator) {
+                    if ($definition->has($deprecatedIndicator)) {
+                        return $resolver;
+                    }
+                }
             }
         }
 
