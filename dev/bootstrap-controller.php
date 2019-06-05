@@ -16,7 +16,10 @@ try {
     exit(1);
 }
 
-$upwardConfig = getenv('UPWARD_PHP_UPWARD_PATH');
+if (empty($_SERVER['UPWARD_PHP_UPWARD_PATH']) || !isset($_SERVER['UPWARD_PHP_UPWARD_PATH'])) {
+    $_SERVER = array_merge(getenv(), $_SERVER);
+}
+$upwardConfig = $_SERVER['UPWARD_PHP_UPWARD_PATH'];
 if (!$upwardConfig) {
     echo 'No path to UPWARD YAML file provided.' . PHP_EOL;
     exit(1);
