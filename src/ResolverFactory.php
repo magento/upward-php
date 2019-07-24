@@ -72,8 +72,8 @@ class ResolverFactory
      */
     private static function build(string $resolverType): Resolver\ResolverInterface
     {
-        if (!array_key_exists($resolverType, self::$resolvers)) {
-            if (!array_key_exists($resolverType, self::$resolverClasses)) {
+        if (!\array_key_exists($resolverType, self::$resolvers)) {
+            if (!\array_key_exists($resolverType, self::$resolverClasses)) {
                 throw new \RuntimeException('No resolver class defined for resolver ' . $resolverType);
             }
 

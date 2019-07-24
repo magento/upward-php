@@ -30,7 +30,7 @@ class TemplateFactory
     {
         // default to mustache if null passed
         $engine = $engine ?? self::TEMPLATE_MUSTACHE;
-        if (array_key_exists($engine, self::$templateClasses)) {
+        if (\array_key_exists($engine, self::$templateClasses)) {
             $engine = new self::$templateClasses[$engine]($basePath);
             if ($engine instanceof TemplateInterface) {
                 return $engine;
