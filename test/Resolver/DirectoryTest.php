@@ -108,7 +108,7 @@ class DirectoryTest extends TestCase
      */
     public function testResolve404(string $directory, string $filename): void
     {
-        $definition = new Definition(compact($directory));
+        $definition = new Definition(compact('directory'));
 
         $this->mockIterator->shouldReceive('get')
             ->with('request.url.pathname')

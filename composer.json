@@ -9,7 +9,7 @@
         "ralouphie/mimey": "^2.0",
         "symfony/yaml": "^2.3||^3.3",
         "zendframework/zend-http": "^2.6",
-        "zendframework/zend-stdlib": "^2.7"
+        "zendframework/zend-stdlib": "^2.7 || ^3.2"
     },
     "require-dev": {
         "bebat/verify": "^2.0",

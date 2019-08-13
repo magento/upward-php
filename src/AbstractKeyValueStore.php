@@ -50,7 +50,7 @@ abstract class AbstractKeyValueStore implements \JsonSerializable, \Countable, \
         $value = $this->data;
 
         foreach (explode('.', (string) $lookup) as $segment) {
-            if (\is_array($value) && array_key_exists($segment, $value)) {
+            if (\is_array($value) && \array_key_exists($segment, $value)) {
                 $value = $value[$segment];
             } else {
                 return;
@@ -71,7 +71,7 @@ abstract class AbstractKeyValueStore implements \JsonSerializable, \Countable, \
 
         foreach (explode('.', $lookup) as $segment) {
             if (\is_array($subArray)) {
-                if (array_key_exists($segment, $subArray)) {
+                if (\array_key_exists($segment, $subArray)) {
                     $subArray         = $subArray[$segment];
                     $parentSegments[] = $segment;
                 } else {
@@ -103,7 +103,7 @@ abstract class AbstractKeyValueStore implements \JsonSerializable, \Countable, \
         $subArray = $this->data;
 
         foreach (explode('.', (string) $lookup) as $segment) {
-            if (\is_array($subArray) && array_key_exists($segment, $subArray)) {
+            if (\is_array($subArray) && \array_key_exists($segment, $subArray)) {
                 $subArray = $subArray[$segment];
             } else {
                 return false;
@@ -183,7 +183,7 @@ abstract class AbstractKeyValueStore implements \JsonSerializable, \Countable, \
         }
 
         $key = array_shift($segments);
-        if (array_key_exists($key, $data)) {
+        if (\array_key_exists($key, $data)) {
             // $value should be appended w/o modifying any of the existing values in $data
             if (\is_array($data[$key]) && \is_array($value)) {
                 $data[$key] = $data[$key] + $value;
