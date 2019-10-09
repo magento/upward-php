@@ -55,6 +55,7 @@ class Directory extends AbstractResolver
         }
 
         $directory  = $this->getIterator()->get('directory', $definition);
+        $headers    = $this->getIterator()->get('headers', $definition);
         $response   = new Stream();
         $upwardRoot = $this->getIterator()->getRootDefinition()->getBasepath();
         $root       = realpath($upwardRoot . \DIRECTORY_SEPARATOR . $directory);
@@ -68,6 +69,7 @@ class Directory extends AbstractResolver
 
             $response->setStream(fopen($path, 'r'));
             $response->getHeaders()->addHeader(new ContentType($mimeType));
+            $response->getHeaders()->addHeaders($headers);
         }
 
         return $response;
