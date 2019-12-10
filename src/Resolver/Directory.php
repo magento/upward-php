@@ -68,6 +68,7 @@ class Directory extends AbstractResolver
 
             $response->setStream(fopen($path, 'r'));
             $response->getHeaders()->addHeader(new ContentType($mimeType));
+            $response->getHeaders()->addHeaderLine('Cache-Control', 'max-age=3600');
         }
 
         return $response;
