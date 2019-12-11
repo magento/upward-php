@@ -100,6 +100,7 @@ class DirectoryTest extends TestCase
         verify($result)->is()->instanceOf(Response::class);
         verify($result->getStatusCode())->is()->sameAs(200);
         verify($result->getHeaders()->get('Content-Type')->getFieldValue())->is()->sameAs('text/plain');
+        verify($result->getHeaders()->get('Cache-Control')->getFieldValue())->is()->sameAs('max-age=31557600');
         verify($result->getBody())->is()->equalToFile(__DIR__ . '/_data/sample.txt');
     }
 
