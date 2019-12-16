@@ -68,6 +68,8 @@ class Directory extends AbstractResolver
 
             $response->setStream(fopen($path, 'r'));
             $response->getHeaders()->addHeader(new ContentType($mimeType));
+            // Enforce best practice and make sure static assets are cacheable
+            $response->getHeaders()->addHeaderLine('Cache-Control', 'max-age=31557600');
         }
 
         return $response;
