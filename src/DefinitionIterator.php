@@ -76,10 +76,7 @@ class DefinitionIterator
                     $originalLookup = $lookup;
                     $lookup         = $parentLookup;
                 } else {
-                    throw new \RuntimeException(sprintf(
-                        'No definition for %s',
-                        \is_string($lookup) || is_numeric($lookup) ? $lookup : \gettype($lookup)
-                    ));
+                    throw new \RuntimeException(sprintf('No definition for %s', \is_string($lookup) || is_numeric($lookup) ? $lookup : \gettype($lookup)));
                 }
             }
 
@@ -113,11 +110,7 @@ class DefinitionIterator
             if (\is_array($value)) {
                 $value = $this->get($originalLookup);
             } elseif (!$value instanceof Response) {
-                throw new \RuntimeException(sprintf(
-                    'Could not get nested value %s from value of type %s',
-                    $originalLookup,
-                    \gettype($value)
-                ));
+                throw new \RuntimeException(sprintf('Could not get nested value %s from value of type %s', $originalLookup, \gettype($value)));
             }
         }
 
@@ -198,11 +191,7 @@ class DefinitionIterator
         $resolver->setIterator($this);
 
         if ($definedValue instanceof Definition && !$resolver->isValid($definedValue)) {
-            throw new \RuntimeException(sprintf(
-                'Definition %s is not valid for %s.',
-                json_encode($definedValue),
-                \get_class($resolver)
-            ));
+            throw new \RuntimeException(sprintf('Definition %s is not valid for %s.', json_encode($definedValue), \get_class($resolver)));
         }
 
         $value = $resolver->resolve($definedValue);

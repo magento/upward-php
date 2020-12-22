@@ -13,7 +13,7 @@
     },
     "require-dev": {
         "bebat/verify": "^2.0",
-        "friendsofphp/php-cs-fixer": "^2.13",
+        "friendsofphp/php-cs-fixer": "^2.17",
         "mockery/mockery": "^1.2",
         "phpunit/phpunit": "^6.2",
         "phpmd/phpmd": "^2.6"
