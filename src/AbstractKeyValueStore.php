@@ -149,7 +149,6 @@ abstract class AbstractKeyValueStore implements \JsonSerializable, \Countable, \
     /**
      * Assign a new key in store.
      *
-     *
      * @throws RuntimeException if $lookup is empty
      * @throws RuntimeException if $lookup is already set
      * @throws RuntimeException if an existing parent of lookup is a scalar value

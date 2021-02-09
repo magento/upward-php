@@ -61,7 +61,7 @@ class Directory extends AbstractResolver
         $filename   = $this->getIterator()->get('request.url.pathname');
         $path       = realpath($root . $filename);
 
-        if (!$path || strpos($path, $root) !== 0 || !is_file($path)) {
+        if (!$path || strpos($path, $root) !== 0 || strpos($path, $upwardRoot) !== 0 || !is_file($path)) {
             $response->setStatusCode(Response::STATUS_CODE_404);
         } else {
             $mimeType = (new MimeTypes())->getMimeType(pathinfo($path, PATHINFO_EXTENSION));

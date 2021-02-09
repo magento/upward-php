@@ -14,6 +14,7 @@ use Magento\Upward\Resolver\File;
 use Mockery;
 use Mockery\Adapter\Phpunit\MockeryPHPUnitIntegration;
 use PHPUnit\Framework\TestCase;
+use Zend\Http\Response;
 use function BeBat\Verify\verify;
 
 class FileTest extends TestCase
@@ -104,6 +105,17 @@ class FileTest extends TestCase
 
         verify($this->resolver->resolve('./_data/sample.txt'))->is()->sameAs("This is a sample file.\n");
         verify($this->resolver->resolve($definition))->is()->sameAs("This is a sample file.\n");
+    }
+
+    public function testResolve404(): void
+    {
+        $notFoundResult = $this->resolver->resolve('./_data/notfound.txt');
+        $pathResult     = $this->resolver->resolve('../_data/sample.txt');
+
+        verify($notFoundResult)->is()->instanceOf(Response::class);
+        verify($notFoundResult->getStatusCode())->is()->sameAs(404);
+        verify($pathResult)->is()->instanceOf(Response::class);
+        verify($pathResult->getStatusCode())->is()->sameAs(404);
     }
 
     public function testResolveJson(): void

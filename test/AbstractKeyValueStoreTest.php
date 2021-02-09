@@ -16,7 +16,7 @@ class AbstractKeyValueStoreTest extends TestCase
 {
     public function emptyKeyDataProvider(): array
     {
-        return[
+        return [
             [''],
             ['  '],
         ];

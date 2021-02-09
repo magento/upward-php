@@ -62,8 +62,7 @@ class Url extends AbstractResolver
         }
 
         $baseUrl = $this->getIterator()->get('baseUrl', $definition)
-            ? $this->getIterator()->get('baseUrl', $definition)
-            : self::FAKE_BASE_URL;
+            ?: self::FAKE_BASE_URL;
         $uri = UriFactory::factory($baseUrl);
 
         if ($definition->has('hostname')) {

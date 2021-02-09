@@ -70,7 +70,7 @@ return PhpCsFixer\Config::create()
         'no_unreachable_default_argument_value'  => true,
         'no_useless_else'                        => true,
         'no_useless_return'                      => true,
-        'ordered_class_elements'                 => ['sortAlgorithm' => 'alpha'],
+        'ordered_class_elements'                 => ['sort_algorithm' => 'alpha'],
         'ordered_imports'                        => ['imports_order' => ['const', 'class', 'function']],
         'php_unit_strict'                        => true,
         'php_unit_set_up_tear_down_visibility'   => true,

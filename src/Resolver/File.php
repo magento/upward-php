@@ -9,6 +9,7 @@ declare(strict_types=1);
 namespace Magento\Upward\Resolver;
 
 use Magento\Upward\Definition;
+use Zend\Http\Response;
 
 class File extends AbstractResolver
 {
@@ -71,9 +72,10 @@ class File extends AbstractResolver
      */
     public function resolve($definition)
     {
-        $encoding = 'utf-8';
-        $parse    = 'auto';
-        $path     = $definition;
+        $encoding   = 'utf-8';
+        $parse      = 'auto';
+        $path       = $definition;
+        $upwardRoot = $this->getIterator()->getRootDefinition()->getBasepath();
 
         if ($definition instanceof Definition) {
             $path = $this->getIterator()->get('file', $definition);
@@ -86,9 +88,13 @@ class File extends AbstractResolver
             }
         }
 
-        // Path is relative, expand it from definition base path.
-        if (substr($path, 0, 1) === '.') {
-            $path = realpath($this->getIterator()->getRootDefinition()->getBasepath() . \DIRECTORY_SEPARATOR . $path);
+        $path = realpath($upwardRoot . \DIRECTORY_SEPARATOR . $path);
+
+        if (!$path || strpos($path, $upwardRoot) !== 0) {
+            $response = new Response();
+            $response->setStatusCode(Response::STATUS_CODE_404);
+
+            return $response;
         }
 
         $content = file_get_contents($path);
