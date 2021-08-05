@@ -18,6 +18,7 @@ class ResolverFactory
     public const RESOLVER_TYPE_SERVICE     = 'service';
     public const RESOLVER_TYPE_TEMPLATE    = 'template';
     public const RESOLVER_TYPE_URL         = 'url';
+    public const RESOLVER_TYPE_COMPUTED    = 'computed';
 
     /**
      * @var array map of resolver key to their class implementation
@@ -31,6 +32,7 @@ class ResolverFactory
         self::RESOLVER_TYPE_SERVICE     => Resolver\Service::class,
         self::RESOLVER_TYPE_TEMPLATE    => Resolver\Template::class,
         self::RESOLVER_TYPE_URL         => Resolver\Url::class,
+        self::RESOLVER_TYPE_COMPUTED    => Resolver\Computed::class,
     ];
 
     /**
