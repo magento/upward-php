@@ -48,6 +48,6 @@ class Computed extends AbstractResolver
             ));
         }
 
-        return $computeResolver->resolve($this->getIterator()->getContext());
+        return $computeResolver->resolve($this->getIterator());
     }
 }
