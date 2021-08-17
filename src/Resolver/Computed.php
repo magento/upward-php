@@ -1,11 +1,15 @@
 <?php
+/**
+ * Copyright © Magento, Inc. All rights reserved.
+ * See COPYING.txt for license details.
+ */
 
 declare(strict_types=1);
 
 namespace Magento\Upward\Resolver;
 
 use Magento\Upward\Definition;
-use Magento\UpwardConnector\Model\Computed\ComputedInterface;
+use Magento\UpwardConnector\Api\ComputedInterface;
 
 class Computed extends AbstractResolver
 {
