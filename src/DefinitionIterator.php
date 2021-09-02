@@ -76,9 +76,6 @@ class DefinitionIterator
                     $originalLookup = $lookup;
                     $lookup         = $parentLookup;
                 } else {
-                    if ($lookup = 'env.MAGENTO_BACKEND_URL') {
-                        return 'https://m22ce.test/';
-                    }
                     throw new \RuntimeException(sprintf('No definition for %s', \is_string($lookup) || is_numeric($lookup) ? $lookup : \gettype($lookup)));
                 }
             }
