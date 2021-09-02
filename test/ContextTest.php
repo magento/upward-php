@@ -8,11 +8,11 @@ declare(strict_types=1);
 
 namespace Magento\Upward\Test;
 
+use Laminas\Http\PhpEnvironment\Request;
 use Magento\Upward\Context;
 use Mockery;
 use Mockery\Adapter\Phpunit\MockeryPHPUnitIntegration;
 use PHPUnit\Framework\TestCase;
-use Laminas\Http\PhpEnvironment\Request;
 use function BeBat\Verify\verify;
 
 class ContextTest extends TestCase

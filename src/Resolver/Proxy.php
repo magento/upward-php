@@ -8,8 +8,8 @@ declare(strict_types=1);
 
 namespace Magento\Upward\Resolver;
 
-use Magento\Upward\Definition;
 use Laminas\Http\Client;
+use Magento\Upward\Definition;
 
 class Proxy extends AbstractResolver
 {
@@ -56,14 +56,14 @@ class Proxy extends AbstractResolver
         $requestHeaders = $request->getHeaders();
         if ($requestHeaders && $requestHeaders->has('Host')) {
             $requestHeaders->removeHeader($request->getHeader('Host'));
-            $requestHeaders->addHeaderLine('Host', parse_url($target, PHP_URL_HOST));
+            $requestHeaders->addHeaderLine('Host', parse_url($target, \PHP_URL_HOST));
         }
 
         $client = new Client(null, [
             'adapter'     => Client\Adapter\Curl::class,
             'curloptions' => [
-                CURLOPT_SSL_VERIFYHOST => $ignoreSSLErrors ? 0 : 2,
-                CURLOPT_SSL_VERIFYPEER => !$ignoreSSLErrors,
+                \CURLOPT_SSL_VERIFYHOST => $ignoreSSLErrors ? 0 : 2,
+                \CURLOPT_SSL_VERIFYPEER => !$ignoreSSLErrors,
             ],
         ]);
 

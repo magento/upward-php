@@ -4,8 +4,9 @@ $finder = PhpCsFixer\Finder::create()
     ->in('src')
     ->in('test')
     ->in('dev');
+$config = new PhpCsFixer\Config();
 
-return PhpCsFixer\Config::create()
+$config->setFinder($finder)
     ->setRules([
         '@Symfony'                               => true,
         '@Symfony:risky'                         => true,
@@ -77,9 +78,9 @@ return PhpCsFixer\Config::create()
         'phpdoc_add_missing_param_annotation'    => ['only_untyped' => false],
         'phpdoc_order'                           => true,
         'phpdoc_types_order'                     => ['sort_algorithm' => 'none', 'null_adjustment' => 'always_last'],
-        'psr0'                                   => ['dir' => 'src'],
+        'psr_autoloading'                        => ['dir' => 'src'],
         'return_assignment'                      => true,
         'simplified_null_return'                 => true,
         'yoda_style'                             => false,
-    ])
-    ->setFinder($finder);
+    ]);
+return $config;

@@ -8,14 +8,14 @@ declare(strict_types=1);
 
 namespace Magento\Upward\Test\Resolver;
 
+use Laminas\Http\Client;
+use Laminas\Http\Response;
 use Magento\Upward\Definition;
 use Magento\Upward\DefinitionIterator;
 use Magento\Upward\Resolver\Service;
 use Mockery;
 use Mockery\Adapter\Phpunit\MockeryPHPUnitIntegration;
 use PHPUnit\Framework\TestCase;
-use Laminas\Http\Client;
-use Laminas\Http\Response;
 use function BeBat\Verify\verify;
 
 /**

@@ -8,8 +8,8 @@ declare(strict_types=1);
 
 namespace Magento\Upward\Resolver;
 
-use Magento\Upward\Definition;
 use Laminas\Http\Client;
+use Magento\Upward\Definition;
 
 class Service extends AbstractResolver
 {
@@ -78,8 +78,8 @@ class Service extends AbstractResolver
         $client = new Client($url, [
             'adapter'     => Client\Adapter\Curl::class,
             'curloptions' => [
-                CURLOPT_SSL_VERIFYHOST => $ignoreSSLErrors ? 0 : 2,
-                CURLOPT_SSL_VERIFYPEER => !$ignoreSSLErrors,
+                \CURLOPT_SSL_VERIFYHOST => $ignoreSSLErrors ? 0 : 2,
+                \CURLOPT_SSL_VERIFYPEER => !$ignoreSSLErrors,
             ],
         ]);
 
