@@ -9,7 +9,7 @@ declare(strict_types=1);
 namespace Magento\Upward\Resolver;
 
 use Magento\Upward\Definition;
-use Zend\Uri\UriFactory;
+use Laminas\Uri\UriFactory;
 
 class Url extends AbstractResolver
 {

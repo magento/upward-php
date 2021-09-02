@@ -14,7 +14,7 @@ use Magento\Upward\Resolver\Directory;
 use Mockery;
 use Mockery\Adapter\Phpunit\MockeryPHPUnitIntegration;
 use PHPUnit\Framework\TestCase;
-use Zend\Http\Response;
+use Laminas\Http\Response;
 use function BeBat\Verify\verify;
 
 class DirectoryTest extends TestCase

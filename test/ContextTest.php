@@ -12,7 +12,7 @@ use Magento\Upward\Context;
 use Mockery;
 use Mockery\Adapter\Phpunit\MockeryPHPUnitIntegration;
 use PHPUnit\Framework\TestCase;
-use Zend\Http\PhpEnvironment\Request;
+use Laminas\Http\PhpEnvironment\Request;
 use function BeBat\Verify\verify;
 
 class ContextTest extends TestCase

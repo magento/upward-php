@@ -14,8 +14,8 @@ use Magento\Upward\Resolver\Service;
 use Mockery;
 use Mockery\Adapter\Phpunit\MockeryPHPUnitIntegration;
 use PHPUnit\Framework\TestCase;
-use Zend\Http\Client;
-use Zend\Http\Response;
+use Laminas\Http\Client;
+use Laminas\Http\Response;
 use function BeBat\Verify\verify;
 
 /**

@@ -8,7 +8,7 @@ declare(strict_types=1);
 
 namespace Magento\Upward;
 
-use Zend\Http\PhpEnvironment\Request;
+use Laminas\Http\PhpEnvironment\Request;
 
 class Context extends AbstractKeyValueStore
 {

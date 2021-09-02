@@ -7,7 +7,7 @@
 declare(strict_types=1);
 
 use Magento\Upward\Controller;
-use Zend\Http\PhpEnvironment\Request;
+use Laminas\Http\PhpEnvironment\Request;
 
 try {
     require_once __DIR__ . '/../vendor/autoload.php';

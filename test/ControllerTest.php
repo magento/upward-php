@@ -13,8 +13,8 @@ use Magento\Upward\DefinitionIterator;
 use Mockery;
 use Mockery\Adapter\Phpunit\MockeryPHPUnitIntegration;
 use PHPUnit\Framework\TestCase;
-use Zend\Http\PhpEnvironment\Request;
-use Zend\Http\Response;
+use Laminas\Http\PhpEnvironment\Request;
+use Laminas\Http\Response;
 use function BeBat\Verify\verify;
 
 /**

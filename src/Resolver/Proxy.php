@@ -9,7 +9,7 @@ declare(strict_types=1);
 namespace Magento\Upward\Resolver;
 
 use Magento\Upward\Definition;
-use Zend\Http\Client;
+use Laminas\Http\Client;
 
 class Proxy extends AbstractResolver
 {
@@ -49,7 +49,7 @@ class Proxy extends AbstractResolver
         $ignoreSSLErrors = $definition->has('ignoreSSLErrors')
             ? $this->getIterator()->get('ignoreSSLErrors', $definition)
             : false;
-        $request            = new \Zend\Http\PhpEnvironment\Request();
+        $request            = new \Laminas\Http\PhpEnvironment\Request();
         $originalRequestURI = clone $request->getUri();
         $request->setUri($target);
         $request->getUri()->setPath($originalRequestURI->getPath())->setQuery($originalRequestURI->getQuery());

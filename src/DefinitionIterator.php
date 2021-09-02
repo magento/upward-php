@@ -8,7 +8,7 @@ declare(strict_types=1);
 
 namespace Magento\Upward;
 
-use Zend\Http\Response;
+use Laminas\Http\Response;
 
 class DefinitionIterator
 {
@@ -76,7 +76,11 @@ class DefinitionIterator
                     $originalLookup = $lookup;
                     $lookup         = $parentLookup;
                 } else {
-                    throw new \RuntimeException(sprintf('No definition for %s', \is_string($lookup) || is_numeric($lookup) ? $lookup : \gettype($lookup)));
+                    if( $lookup='env.MAGENTO_BACKEND_URL') {
+                        return 'https://m22ce.test/';
+                    } else {
+                        throw new \RuntimeException(sprintf('No definition for %s', \is_string($lookup) || is_numeric($lookup) ? $lookup : \gettype($lookup)));
+                    }
                 }
             }
 

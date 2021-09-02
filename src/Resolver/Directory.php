@@ -10,9 +10,9 @@ namespace Magento\Upward\Resolver;
 
 use Magento\Upward\Definition;
 use Mimey\MimeTypes;
-use Zend\Http\Header\ContentType;
-use Zend\Http\Response;
-use Zend\Http\Response\Stream;
+use Laminas\Http\Header\ContentType;
+use Laminas\Http\Response;
+use Laminas\Http\Response\Stream;
 
 class Directory extends AbstractResolver
 {

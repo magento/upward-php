@@ -8,7 +8,7 @@ declare(strict_types=1);
 
 namespace Magento\Upward;
 
-use Zend\Stdlib\ArrayUtils;
+use Laminas\Stdlib\ArrayUtils;
 
 abstract class AbstractKeyValueStore implements \JsonSerializable, \Countable, \Iterator
 {
