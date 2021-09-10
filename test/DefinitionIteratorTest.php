@@ -8,6 +8,7 @@ declare(strict_types=1);
 
 namespace Magento\Upward\Test;
 
+use Laminas\Http\Response;
 use Magento\Upward\Context;
 use Magento\Upward\Definition;
 use Magento\Upward\DefinitionIterator;
@@ -16,7 +17,6 @@ use Magento\Upward\ResolverFactory;
 use Mockery;
 use Mockery\Adapter\Phpunit\MockeryPHPUnitIntegration;
 use PHPUnit\Framework\TestCase;
-use Zend\Http\Response;
 use function BeBat\Verify\verify;
 
 class DefinitionIteratorTest extends TestCase

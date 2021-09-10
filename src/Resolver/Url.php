@@ -8,8 +8,8 @@ declare(strict_types=1);
 
 namespace Magento\Upward\Resolver;
 
+use Laminas\Uri\UriFactory;
 use Magento\Upward\Definition;
-use Zend\Uri\UriFactory;
 
 class Url extends AbstractResolver
 {

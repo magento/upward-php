@@ -6,8 +6,8 @@
 
 declare(strict_types=1);
 
+use Laminas\Http\PhpEnvironment\Request;
 use Magento\Upward\Controller;
-use Zend\Http\PhpEnvironment\Request;
 
 try {
     require_once __DIR__ . '/../vendor/autoload.php';
@@ -18,7 +18,7 @@ try {
 
 $upwardConfig = getenv('UPWARD_PHP_UPWARD_PATH');
 if (!$upwardConfig) {
-    echo 'No path to UPWARD YAML file provided.' . PHP_EOL;
+    echo 'No path to UPWARD YAML file provided.' . \PHP_EOL;
     exit(1);
 }
 

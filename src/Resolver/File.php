@@ -8,8 +8,8 @@ declare(strict_types=1);
 
 namespace Magento\Upward\Resolver;
 
+use Laminas\Http\Response;
 use Magento\Upward\Definition;
-use Zend\Http\Response;
 
 class File extends AbstractResolver
 {
@@ -99,10 +99,10 @@ class File extends AbstractResolver
 
         $content = file_get_contents($path);
 
-        if (($parse == 'auto' && pathinfo($path, PATHINFO_EXTENSION) == 'json') || $parse == 'json') {
+        if (($parse == 'auto' && pathinfo($path, \PATHINFO_EXTENSION) == 'json') || $parse == 'json') {
             $content = json_decode($content, true);
 
-            if (json_last_error() !== JSON_ERROR_NONE) {
+            if (json_last_error() !== \JSON_ERROR_NONE) {
                 throw new \RuntimeException('Failed to parse ' . basename($path) . ': ' . json_last_error_msg());
             }
         }

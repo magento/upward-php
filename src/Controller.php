@@ -8,8 +8,8 @@ declare(strict_types=1);
 
 namespace Magento\Upward;
 
-use Zend\Http\PhpEnvironment\Request;
-use Zend\Http\Response;
+use Laminas\Http\PhpEnvironment\Request;
+use Laminas\Http\Response;
 
 class Controller
 {

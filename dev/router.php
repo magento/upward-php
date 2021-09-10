@@ -7,7 +7,7 @@
 declare(strict_types=1);
 
 $controller = require __DIR__ . '/bootstrap-controller.php';
-/** @var \Zend\Http\Response $response */
+/** @var \Laminas\Http\Response $response */
 $response = $controller();
 
 header($response->renderStatusLine());
@@ -15,7 +15,7 @@ foreach ($response->getHeaders() as $header) {
     header($header->toString());
 }
 
-if ($response instanceof \Zend\Http\Response\Stream) {
+if ($response instanceof \Laminas\Http\Response\Stream) {
     echo $response->getBody();
 } else {
     echo $response->getContent();

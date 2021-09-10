@@ -8,11 +8,11 @@ declare(strict_types=1);
 
 namespace Magento\Upward\Resolver;
 
+use Laminas\Http\Header\ContentType;
+use Laminas\Http\Response;
+use Laminas\Http\Response\Stream;
 use Magento\Upward\Definition;
 use Mimey\MimeTypes;
-use Zend\Http\Header\ContentType;
-use Zend\Http\Response;
-use Zend\Http\Response\Stream;
 
 class Directory extends AbstractResolver
 {
@@ -64,7 +64,7 @@ class Directory extends AbstractResolver
         if (!$path || strpos($path, $root) !== 0 || strpos($path, $upwardRoot) !== 0 || !is_file($path)) {
             $response->setStatusCode(Response::STATUS_CODE_404);
         } else {
-            $mimeType = (new MimeTypes())->getMimeType(pathinfo($path, PATHINFO_EXTENSION));
+            $mimeType = (new MimeTypes())->getMimeType(pathinfo($path, \PATHINFO_EXTENSION));
 
             $response->setStream(fopen($path, 'r'));
             $response->getHeaders()->addHeader(new ContentType($mimeType));

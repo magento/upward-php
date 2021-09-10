@@ -8,7 +8,7 @@ declare(strict_types=1);
 
 namespace Magento\Upward;
 
-use Zend\Http\Response;
+use Laminas\Http\Response;
 
 class DefinitionIterator
 {
