@@ -3,7 +3,6 @@
     "description": "UPWARD parser and server",
     "type": "library",
     "license": "OSL-3.0",
-    "version": "1.2.0",
     "require": {
         "php": ">= 7.1",
         "mustache/mustache": "^2.12",
