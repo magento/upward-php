@@ -25,6 +25,6 @@
         "enable": false,
         "frequency": "quarterly",
         "customName": "UPWARD PHP Static Scan",
-        "branchesToScan": ["develop"]
+        "branchesToScan": ["master", "develop"]
     }
 }
