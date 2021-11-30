@@ -27,10 +27,19 @@ class DefinitionIterator
      */
     private $rootDefinition;
 
-    public function __construct(Definition $rootDefinition, Context $context)
-    {
+    public function __construct(
+        Definition $rootDefinition,
+        Context $context,
+        ?array $additionalResolvers = []
+    ) {
         $this->rootDefinition = $rootDefinition;
         $this->context        = $context;
+
+        if (!empty($additionalResolvers)) {
+            foreach ($additionalResolvers as $type => $class) {
+                ResolverFactory::addResolverClass($type, $class);
+            }
+        }
     }
 
     /**

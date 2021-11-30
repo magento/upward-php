@@ -30,8 +30,11 @@ class Controller
     /**
      * @throws \RuntimeException if a required key is missing from $upwardCofig file
      */
-    public function __construct(Request $request, string $upwardConfig)
-    {
+    public function __construct(
+        Request $request,
+        string $upwardConfig,
+        ?array $additionalResolvers = []
+    ) {
         $this->request    = $request;
         $this->context    = Context::fromRequest($request);
         $this->definition = Definition::fromYamlFile($upwardConfig);
@@ -42,7 +45,11 @@ class Controller
             }
         }
 
-        $this->definitionIterator = new DefinitionIterator($this->definition, $this->context);
+        $this->definitionIterator = new DefinitionIterator(
+            $this->definition,
+            $this->context,
+            $additionalResolvers
+        );
     }
 
     /**
