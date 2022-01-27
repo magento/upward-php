@@ -27,7 +27,7 @@ abstract class AbstractKeyValueStore implements \JsonSerializable, \Countable, \
         return \count($this->data);
     }
 
-    public function current()
+    public function current(): mixed
     {
         return $this->get($this->key());
     }
@@ -126,12 +126,12 @@ abstract class AbstractKeyValueStore implements \JsonSerializable, \Countable, \
      *
      * @return array
      */
-    public function jsonSerialize()
+    public function jsonSerialize(): mixed
     {
         return $this->toArray();
     }
 
-    public function key()
+    public function key(): mixed
     {
         return key($this->data);
     }

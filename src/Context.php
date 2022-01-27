@@ -105,7 +105,7 @@ class Context extends AbstractKeyValueStore
      */
     public function isStatusCode($value): bool
     {
-        return (\is_int($value) || ctype_digit($value)) && 100 <= $value && $value < 600;
+        return (\is_int($value) || (\is_string($value) && ctype_digit($value))) && 100 <= $value && $value < 600;
     }
 
     /**
