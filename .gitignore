@@ -151,5 +151,6 @@ fabric.properties
 # End of https://www.gitignore.io/api/macos,linux,composer,phpstorm,visualstudiocode
 
 .php_cs.cache
+.php-cs-fixer.cache
 phpunit.xml
 node_modules

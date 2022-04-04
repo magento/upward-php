@@ -28,6 +28,8 @@ class Controller
     private $request;
 
     /**
+     * @param ?array $additionalResolvers
+     *
      * @throws \RuntimeException if a required key is missing from $upwardCofig file
      */
     public function __construct(

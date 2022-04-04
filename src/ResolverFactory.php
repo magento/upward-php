@@ -30,7 +30,7 @@ class ResolverFactory
         self::RESOLVER_TYPE_PROXY       => Resolver\Proxy::class,
         self::RESOLVER_TYPE_SERVICE     => Resolver\Service::class,
         self::RESOLVER_TYPE_TEMPLATE    => Resolver\Template::class,
-        self::RESOLVER_TYPE_URL         => Resolver\Url::class
+        self::RESOLVER_TYPE_URL         => Resolver\Url::class,
     ];
 
     /**
