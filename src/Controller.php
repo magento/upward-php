@@ -43,7 +43,7 @@ class Controller
 
         foreach (self::STANDARD_FIELDS as $key) {
             if (!$this->definition->has($key)) {
-                throw new \RuntimeException("Definition YAML is missing required key: ${key}");
+                throw new \RuntimeException("Definition YAML is missing required key: {$key}");
             }
         }
 

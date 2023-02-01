@@ -78,7 +78,7 @@ class Url extends AbstractResolver
             $currentPathname = $uri->getPath();
             if ($pathname[0] !== '/') {
                 if ($currentPathname === null) {
-                    $pathname = "/${pathname}";
+                    $pathname = "/{$pathname}";
                 } elseif ($currentPathname[\strlen($currentPathname) - 1] === '/') {
                     $pathname = $currentPathname . $pathname;
                 } else {

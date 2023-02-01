@@ -37,6 +37,6 @@ class TemplateFactory
             }
         }
 
-        throw new \InvalidArgumentException("${engine} could not be found or does not implement TemplateInterface");
+        throw new \InvalidArgumentException("{$engine} could not be found or does not implement TemplateInterface");
     }
 }

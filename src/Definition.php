@@ -44,7 +44,7 @@ class Definition extends AbstractKeyValueStore
         $data = Yaml::parseFile($filePath);
 
         if (!\is_array($data)) {
-            throw new \InvalidArgumentException("File ${filePath} could not be parsed as YAML.");
+            throw new \InvalidArgumentException("File {$filePath} could not be parsed as YAML.");
         }
 
         $instance = new static($data);

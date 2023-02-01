@@ -4,7 +4,7 @@
     "type": "library",
     "license": "OSL-3.0",
     "require": {
-        "php": "~7.4.0||~8.1.0",
+        "php": "~8.1.0||~8.2.0",
         "mustache/mustache": "^2.12",
         "xantios/mimey": "^2.2",
         "symfony/yaml": "^2.3 || ^3.3 || ^4.0 || ^5.0",
