@@ -16,7 +16,11 @@ try {
     exit(1);
 }
 
-$upwardConfig = getenv('UPWARD_PHP_UPWARD_PATH');
+// populate the $_SERVER superglobal with environment variables if we're running with PHP's built-in server
+if (PHP_SAPI === 'cli-server') {
+    $_SERVER = array_merge(getenv(), $_SERVER);
+}
+$upwardConfig = $_SERVER['UPWARD_PHP_UPWARD_PATH'] ?? null;
 if (!$upwardConfig) {
     echo 'No path to UPWARD YAML file provided.' . \PHP_EOL;
     exit(1);

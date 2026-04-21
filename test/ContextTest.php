@@ -68,8 +68,8 @@ class ContextTest extends TestCase
         $request->shouldReceive('getUri->getQuery')
             ->andReturn('query=query-value');
 
-        putenv('ENV_NAME=envValue');
-        $subject = Context::fromRequest($request);
+        $_SERVER['ENV_NAME'] = 'envValue';
+        $subject             = Context::fromRequest($request);
 
         verify($subject->get('request.headers.Request-Header'))->is()->sameAs('header value');
         verify($subject->get('request.headerEntries.0.key'))->is()->sameAs('Request-Header');
